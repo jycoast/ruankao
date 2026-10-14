@@ -1,5 +1,9 @@
 name: CI
 
+# action 统一用最新大版本：原先的 checkout@v4 / setup-go@v5 / setup-node@v4 跑在 Node 20 上，
+# GitHub 已报 deprecation notice（被强制在 Node 24 上运行）；v7 系列已完成 ESM 迁移、跑在 Node 24。
+# 本文件用到的输入（go-version / node-version / cache / cache-dependency-path）签名在各版本间未变。
+
 on:
   push:
     branches: [ main ]
@@ -8,7 +12,10 @@ on:
 jobs:
   backend:
     name: Backend (build + test)
-    runs-on: ubuntu-latest
+    # 固定镜像，不用 ubuntu-latest：GitHub 公告 ubuntu-latest 自 2026-10-19 起迁往 Ubuntu 26，
+    # 而这个仓库吃过平台静默变更的亏（Windows/Linux 时钟粒度、Node 大版本），不想让刚跑绿的
+    # CI 被一次底层镜像升级打回红。要跟进时改这一行即可。
+    runs-on: ubuntu-24.04
     services:
       mysql:
         image: mysql:8.0
@@ -25,8 +32,8 @@ jobs:
         ports:
           - 6379:6379
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version: '1.24'
           cache-dependency-path: backend/go.sum
@@ -74,10 +81,11 @@ jobs:
 
   frontend:
     name: Frontend (type-check + build)
-    runs-on: ubuntu-latest
+    # 同上：固定镜像，避免 ubuntu-latest 迁 Ubuntu 26 带来的静默平台变更。
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           # 必须 >=22.12：unplugin@3（unplugin-vue-components 的依赖）用了
           # import.meta.dirname，Node 20.11+ 才有；vitest@5 声明 ^22.12.0。
