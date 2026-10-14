@@ -23,6 +23,7 @@ import {
   extractTargetBlankNumber,
   correctLabelsByBlank,
 } from '@/utils/blanks'
+import { groupQuestions } from '@/utils/questionGroup'
 
 const route = useRoute()
 const router = useRouter()
@@ -126,6 +127,8 @@ function clearCache() {
 watch([answers, practiceResults, currentIndex], saveCache, { deep: true })
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
+// 答题卡按大题分组：案例分析卷一行往往是一道大题的一问（见 utils/questionGroup）
+const questionGroups = computed(() => groupQuestions(questions.value))
 const reportDialogRef = ref<InstanceType<typeof ReportDialog> | null>(null)
 
 const blankGroups = computed(() => groupOptionsByBlank(currentQuestion.value?.options || []))
@@ -587,6 +590,7 @@ useQuizShortcuts({
           <AnswerCard
             :total="questions.length"
             :current-index="currentIndex"
+            :groups="questionGroups"
             :answered-map="answeredMap"
             :result-map="isPractice ? resultMap : undefined"
             class="sticky top-20"
@@ -600,6 +604,7 @@ useQuizShortcuts({
         <AnswerCard
           :total="questions.length"
           :current-index="currentIndex"
+          :groups="questionGroups"
           :answered-map="answeredMap"
           :result-map="isPractice ? resultMap : undefined"
           @jump="jumpToQuestion"

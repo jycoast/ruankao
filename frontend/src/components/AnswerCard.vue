@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { groupLabel, type QuestionGroup } from '@/utils/questionGroup'
 
 interface Props {
   total: number
@@ -8,6 +9,8 @@ interface Props {
   // 判题结果（练习模式/已交卷）：true=正确 false=错误 null=已答未判(主观题)。
   // 不传则为普通作答模式，仅区分已答/未答。
   resultMap?: Record<number, boolean | null>
+  // 大题分组（整卷场景才传，见 utils/questionGroup）。不传则按键位平铺，与旧版一致。
+  groups?: QuestionGroup[]
 }
 
 const props = defineProps<Props>()
@@ -17,6 +20,11 @@ const emit = defineEmits<{
 
 const collapsed = ref(false)
 const hasResult = computed(() => !!props.resultMap)
+
+const groupList = computed(() => props.groups ?? [])
+// 只有真的存在「一道大题含多问」时才画分组标题：
+// 形状 A 的卷子（一行一道大题）每组恰好 1 格，保持原来的平铺观感。
+const showGroups = computed(() => groupList.value.some((g) => g.count >= 2))
 
 function getBlockClass(index: number) {
   const base = 'w-8 h-8 rounded-md text-xs font-medium cursor-pointer transition-all flex items-center justify-center shrink-0'
@@ -58,6 +66,7 @@ function getBlockClass(index: number) {
         </svg>
         <span class="font-medium text-gray-700 dark:text-gray-300">答题卡</span>
         <span class="text-sm text-gray-400">({{ Object.keys(answeredMap).length }}/{{ total }})</span>
+        <span v-if="showGroups" class="text-sm text-gray-400">· 共 {{ groupList.length }} 道大题</span>
       </div>
       <svg 
         class="w-4 h-4 text-gray-400 transition-transform" 
@@ -70,7 +79,31 @@ function getBlockClass(index: number) {
 
     <!-- Answer Grid -->
     <div v-show="!collapsed" class="px-4 pb-4">
-      <div class="grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(2rem, 1fr));">
+      <!-- 整卷且存在多问大题时按大题分组；其余情况保持按键位平铺 -->
+      <template v-if="showGroups">
+        <div v-for="(g, gi) in groupList" :key="g.start" :class="gi > 0 ? 'mt-3' : ''">
+          <div class="flex items-baseline justify-between gap-2 mb-1.5">
+            <span
+              class="text-xs font-medium text-gray-600 dark:text-gray-300 truncate"
+              :title="g.title"
+            >
+              {{ groupLabel(gi) }}<template v-if="g.title"> · {{ g.title }}</template>
+            </span>
+            <span class="text-xs text-gray-400 shrink-0">{{ g.count }}问</span>
+          </div>
+          <div class="grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(2rem, 1fr));">
+            <button
+              v-for="n in g.count"
+              :key="g.start + n - 1"
+              :class="getBlockClass(g.start + n - 1)"
+              @click="emit('jump', g.start + n - 1)"
+            >
+              {{ g.start + n }}
+            </button>
+          </div>
+        </div>
+      </template>
+      <div v-else class="grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(2rem, 1fr));">
         <button
           v-for="(_, i) in total"
           :key="i"

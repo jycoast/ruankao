@@ -16,6 +16,7 @@ import {
   replaceBlankMarkers,
   correctLabelsByBlank,
 } from '@/utils/blanks'
+import { groupQuestions } from '@/utils/questionGroup'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,6 +48,8 @@ onMounted(async () => {
 })
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
+// 答题卡按大题分组：背题页与答题页读同一份卷子，分组口径必须一致
+const questionGroups = computed(() => groupQuestions(questions.value))
 // 论文题（question_type=4）：背题时可以直接拿题面 + 写作要点去生成一篇范文
 const isEssay = computed(() => currentQuestion.value?.question_type === 4)
 const blankGroups = computed(() => groupOptionsByBlank(currentQuestion.value?.options || []))
@@ -193,6 +196,7 @@ useQuizShortcuts({
           <AnswerCard
             :total="questions.length"
             :current-index="currentIndex"
+            :groups="questionGroups"
             :answered-map="visited"
             class="sticky top-20"
             @jump="gotoQuestion"
@@ -205,6 +209,7 @@ useQuizShortcuts({
         <AnswerCard
           :total="questions.length"
           :current-index="currentIndex"
+          :groups="questionGroups"
           :answered-map="visited"
           @jump="gotoQuestion"
         />
