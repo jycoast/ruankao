@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <meta charset="utf-8" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <title>404页面 - 您访问的页面读书去了 - 希赛网</title> 
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" /> 
+  <link rel="stylesheet" href="https://lstatic.xisaiwang.com/educity/pc/cmsng/css/common.css?v=181506" /> 
+  <link rel="stylesheet" href="https://lstatic.xisaiwang.com/educity/pc/cmsng/css/poplogin.css?v=181506" /> 
+  <link rel="stylesheet" href="https://lstatic.xisaiwang.com/public/plugins/layui/css/modules/layer/default/layer.css?v=181506" /> 
+  <link rel="stylesheet" href="https://lstatic.xisaiwang.com/public/plugins/sweetalert/sweetalert.css?v=181506" /> 
+  <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 --> 
+  <!--[if lt IE 9]>
+<script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js?v=181506"></script>
+<script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js?v=181506"></script>
+<![endif]--> 
+  <link rel="stylesheet" href="https://lstatic.educity.cn/educity/pc/www/css/404.css?v=181506" /> 
+ </head> 
+ <body>
+  <!-- 页头 --> 
+  <!-- ID: 225, ENVID: null, RESTYPE:null--> 
+  <div class="ecv2_header"> 
+   <div class="ecv2_header_tools ecv2_container clearfix"> 
+    <div class="fl"> 
+     <ul> 
+      <li><a href="https://www.educity.cn/" target="_blank" title="">首页</a></li> 
+      <li> 关于希赛<i></i> 
+       <ul class="drop_ul"> 
+        <li><a href="https://www.educity.cn/hzzx/About.html" target="_blank" title="希赛简介" rel="nofollow">希赛简介</a></li> 
+        <li><a href="https://www.educity.cn/hzzx/gsdsj.html" target="_blank" title="发展历程" rel="nofollow">发展历程</a></li> 
+        <li><a href="https://www.educity.cn/hzzx/Honor.html" target="_blank" title="资质荣誉" rel="nofollow">资质荣誉</a></li> 
+       </ul> </li> 
+      <li> <a href="https://www.educity.cn/app/" target="_blank" title=""> <img src="https://lstatic.educity.cn/educity/pc/cmsng/img/index/icon_top_phone.png" alt="" /> APP </a> </li> 
+      <li> <a href="https://www.educity.cn/chat/wechat.html" target="_blank" title=""> <img src="https://lstatic.educity.cn/educity/pc/cmsng/img/index/icon_top_wechat.png" alt="" /> 微信群 </a> </li> 
+      <li> <a href="https://www.educity.cn/chat/qq.html" target="_blank" title=""> <img src="https://lstatic.educity.cn/educity/pc/cmsng/img/index/icon_top_QQ.png" alt="" /> QQ群 </a> </li> 
+     </ul> 
+    </div> 
+    <div class="fr"> 
+     <a href="/training/search.html" target="_blank" rel="nofollow"><span>培训证书查询</span></a> 
+     <a href="/hzzx/jubao.html" target="_blank"><span>违法和不良信息举报</span></a> 
+     <span>客服热线：400-111-9811</span> 
+     <span class="login_res"> <a href="https://wangxiao.xisaiwang.com/ucenter2/login.html" class="login">登录</a>| <a href="https://wangxiao.xisaiwang.com/ucenter2/register.html" class="res">注册</a> </span> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="box"> 
+   <div class="box_box"> 
+    <h1 style="font-size: 32px">您访问的页面读书去了</h1> 
+    <div></div> 
+    <!-- <a href="/">返回希赛网首页111</a> --> 
+   </div> 
+   <!-- ID: 2498, ENVID: null, RESTYPE:null--> 
+   <div class="error_nav"> 
+    <h3><em>希赛网内容导航</em></h3> 
+    <ul> 
+     <li> <em> <a href="/rk/"> <font color="#ffffff">项目管理</font> </a> </em> <span> <a href="https://www.educity.cn/pmp/" target="_blank">PMP<sup>&reg;</sup></a> <a href="https://www.educity.cn/acp/" target="_blank">PMI-ACP<sup>&reg;</sup></a> <a href="https://www.educity.cn/npdp/" target="_blank">NPDP</a> <a href="https://www.educity.cn/pr/" target="_blank">PRINCE2<sup>&reg;</sup></a> </span> </li> 
+     <li> <em>软考通信</em> <span> <a href="https://www.educity.cn/rk/rjsp/index.html" target="_blank">系分</a> <a href="https://www.educity.cn/rk/isen/index.html" target="_blank">高项</a> <a href="https://www.educity.cn/rk/netgh/index.html" target="_blank">网络规划</a> <a href="https://www.educity.cn/rk/sa/index.html" target="_blank">系统架构</a> <a href="https://www.educity.cn/rk/spmd/index.html" target="_blank">系统规划</a> <a href="https://www.educity.cn/rk/iten/index.html" target="_blank">系统集成</a> <a href="https://www.educity.cn/rk/prog/index.html" target="_blank">软件设计师</a> <a href="https://www.educity.cn/rk/net/index.html" target="_blank">网络工程师</a> <a href="https://www.educity.cn/rk/itau/index.html" target="_blank">监理</a> <a href="https://www.educity.cn/rk/isme/index.html" target="_blank">信管</a> <a href="https://www.educity.cn/rk/dzsw/index.html" target="_blank">电子商务</a> <a href="https://www.educity.cn/rk/test/index.html" target="_blank">软件评测</a> <a href="https://www.educity.cn/rk/safe/index.html" target="_blank">信息安全</a> <a href="https://www.educity.cn/rk/dbms/index.html" target="_blank">数据库</a> <a href="https://www.educity.cn/rk/emb/index.html" target="_blank">嵌入式</a> <a href="https://www.educity.cn/rk/cxy/index.html" target="_blank">程序员</a> <a href="https://www.educity.cn/rk/wlgly/index.html" target="_blank">网络管理员</a> <a href="https://www.educity.cn/rk/xxcl/index.html" target="_blank">信息处理员</a> <a href="https://www.educity.cn/rk/xtyxgly/index.html" target="_blank">系统运行</a> <a href="https://www.educity.cn/tx/chuji/index.html" target="_blank">初级通信</a> <a href="https://www.educity.cn/tx/zhongji/index.html" target="_blank">中级通信</a> </span> </li> 
+     <li> <em>厂商认证</em> <span> <a href="https://www.educity.cn/hwrz/" target="_blank">华为认证</a> <a href="https://www.educity.cn/alyrz/" target="_blank">阿里云认证</a> <a href="https://www.educity.cn/itil/" target="_blank">ITIL<sup>&reg;</sup></a> <a href="https://www.educity.cn/cisp/" target="_blank">CISP</a> </span> </li> 
+     <li> <em>建筑工程</em> <span> <a href="/jianzaoshi1/">一级建造师</a> <a href="/jianzaoshi2/">二级建造师</a> <a href="/jls/">监理工程师</a> <a href="/aq/">安全工程师</a> </span> </li> 
+     <li> <em>金融会计</em> <span> <a href="https://www.educity.cn/cjkj/" target="_blank">初级会计</a> <a href="https://www.educity.cn/zjkj/" target="_blank">中级会计</a> <a href="https://www.educity.cn/gaoji/" target="_blank">高级会计</a> <a href="https://www.educity.cn/jjs/" target="_blank">经济师</a> <a href="https://www.educity.cn/ccbp/" target="_blank">银行从业</a> <a href="https://www.educity.cn/zq/" target="_blank">证券从业</a> <a href="https://www.educity.cn/jjcy/" target="_blank">基金从业</a> <a href="https://www.educity.cn/qh/" target="_blank">期货从业</a> </span> </li> 
+     <li> <em>职业资格</em> <span> <a href="https://www.educity.cn/zyhs/" target="_blank">执业护士</a> <a href="https://www.educity.cn/zyys/" target="_blank">执业药师</a> <a href="https://www.educity.cn/ntce/" target="_blank">教师资格</a> </span> </li> 
+     <li> <em>考研考博</em> <span> <a href="https://www.educity.cn/kbyy/" target="_blank">考博英语</a> <a href="https://www.educity.cn/kyyy/" target="_blank">考研英语</a> <a href="https://www.educity.cn/mba/" target="_blank">MBA</a> <a href="https://www.educity.cn/mem/" target="_blank">MEM</a> <a href="https://www.educity.cn/mpacc/" target="_blank">MPAcc</a> <a href="https://www.educity.cn/mpa/   " target="_blank">MPA</a> </span> </li> 
+     <li> <em> <a href="/english/"> <font color="#ffffff">学历提升</font> </a> </em> <span> <a href="https://www.educity.cn/zikao/" target="_blank">自考</a> <a href="https://www.educity.cn/chengkao/" target="_blank">成人高考</a> <a href="https://www.educity.cn/zhuanjieben/" target="_blank">专接本</a> </span> </li> 
+    </ul> 
+   </div> 
+  </div> 
+  <!-- 页脚 --> 
+  <!-- ID: 211, ENVID: null, RESTYPE:null--> 
+  <div class="ecv2_footer"> 
+   <div class="ecv2_footer_top"> 
+    <div class="ecv2_container clearfix"> 
+     <ol> 
+      <li>新手指南</li> 
+      <li><a href="https://www.educity.cn/login.html" target="_blank" rel="nofollow">注册登录</a></li> 
+      <li><a href="https://www.educity.cn/app/" target="_blank">APP下载</a></li> 
+      <li><a href="https://www.educity.cn/hzzx/bank.html" target="_blank">支付方式</a></li> 
+      <li><a href="https://www.educity.cn/hzzx/Problem.html" target="_blank">购买提醒</a></li> 
+     </ol> 
+     <ol> 
+      <li>如何上课</li> 
+      <li><a href="https://www.educity.cn/xuexibao/" target="_blank" rel="nofollow">自学产品</a></li> 
+      <li><a href="https://www.educity.cn/zhibo/" target="_blank" rel="nofollow">网络课堂</a></li> 
+      <li><a href="https://www.educity.cn/shipin/" target="_blank" rel="nofollow">视频课程</a></li> 
+      <li><a href="https://www.educity.cn/qytuanbao.html" target="_blank">企业团报</a></li> 
+     </ol> 
+     <ol> 
+      <li>关于我们</li> 
+      <li><a href="https://www.educity.cn/hzzx/About.html" target="_blank">关于希赛</a></li> 
+      <li><a href="https://www.educity.cn/hzzx/tuikuan.html" target="_blank">常见问题</a></li> 
+      <li><a href="https://www.educity.cn/hzzx/lxwm.html" target="_blank">联系希赛</a></li> 
+      <li><a href="https://www.educity.cn/hzzx/yyzz.html" target="_blank">营业执照</a></li> 
+     </ol> 
+     <dl class="ecv2_footer_nextto"> 
+      <dt> 
+       <h3>400-111-9811</h3> 
+       <span>仅收市话费</span> 
+      </dt> 
+      <dd> 
+       <a href="openJesongChatByGroup(13264,28401);return false;"><img src="https://lstatic.educity.cn/educity/pc/cmsng/img/index/icon_bottom_zixun.png" alt="" />咨询在线客服</a> 
+      </dd> 
+     </dl> 
+     <ul class="ecv2_footer_codes"> 
+      <li> <img src="https://lstatic.educity.cn/educity/pc/cmsng/img/index/img_code_weix.png" alt="希赛网微信" /> <p>关注希赛网微信</p> </li> 
+      <li> <img src="https://img.kuaiwenyun.com/images/article/2020-08/668/V8Q2GHKYQa.png" alt="下载希赛网APP" /> <p>下载希赛网APP</p> </li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="ecv2_footer_bottom"> 
+    <p>PMP<sup>&reg;</sup>，PMI-ACP<sup>&reg;</sup>和PMBOK<sup>&reg;</sup>是Project Management Institute，Inc.的注册商标 <br />湖南希赛网络科技有限公司　版权所有　&copy;2001-2022　<a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow">湘ICP备10203241号-14</a>　<a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=43019002000749" target="_blank" rel="nofollow">湘公网安备43019002000749号</a><br /> 违法和不良信息举报电话：18974879411　举报/反馈/投诉邮箱：wujunping@educity.cn<br /> 出版物经营许可证：4301042021177　高新技术企业证书：GR202143001539　广播电视节目制作经营许可证： (湘)字00833号　ISO培训质量认证：05320Q30844R0M</p> 
+   </div> 
+  </div> 
+  <script ujg-event-init="{&quot;app_code&quot;:&quot;csai&quot;, &quot;event_id&quot;:9000}"></script> 
+  <script ujg-event-init="{&quot;app_code&quot;:&quot;csai&quot;, &quot;event_id&quot;:9000}"></script> 
+  <script>
+	var port = {
+		"baseDomain": "https://base.xisaiwang.cn",
+		"static": "https://lstatic.xisaiwang.com",
+		"api_port": "/ucapi",
+		"ucDomain": "https://uc.xisaiwang.com",
+		"mUcDomain": "https://muc.xisaiwang.com",
+		"api": "/api",
+        "passport": "https://wangxiao.xisaiwang.com/ucenter2",
+        "ucenterapi": "/ucenterapi",
+        "tikuapi": "/tikuapi",
+        "xisaiwang": "https://wangxiao.xisaiwang.com",
+        "productapi": "https://wangxiao.xisaiwang.com/productapi"
+	};
+	STATIC_DOMAIN = "https://lstatic.xisaiwang.com";
+    IS_POP = "Y";
+    IS_NEW_VERSION = "true";
+    
+  //开始做题事件
+    function onZuoTiEvent(_this){
+    	var dataId = $(_this).attr("data-id");
+    	var paperType = $(_this).attr("data-type");
+    	var classifyId = $(_this).attr("data-classifyId");
+    	if(dataId && paperType){
+    		var data = {};
+    		data.paperId = dataId;
+    		data.paperType = paperType;
+    		data.classifyId = classifyId;
+    		//授权
+    		Kino.ajax(port.ucenterapi+"/api3th/user/checkZuoti.do", function (resp) {
+    			if(resp.model.noAuth=="Y"){
+    				$(".studentVip").removeClass("hide");
+    				$("#vipMask").removeClass("hide");
+    				return;
+    			}
+    			data = {};
+    			data.dataId = dataId;
+    			data.paperType = paperType;
+    			data.classifyId = classifyId;
+    			data.key = resp.model.key;
+    			data.stuClassifyId = resp.model.stuClassifyId;
+    			data.skuId = resp.model.skuId;
+    			data.testModel = "Exercise";
+    			data.num = 0;
+    			//做题
+    			Kino.ajax(port.tikuapi+"/api3th/zuoti/startExam.do", function (resp) {
+    				location.href="/tiku2/exam"+resp.model.testLogId+".html";
+    			}, {
+    				type: "post",async:"true", data: data
+    			});
+    		}, {
+    			type: "post",async:"false", data: data
+    		});	
+    	}
+    }
+    //继续做题的事件
+    function onJixuZuotiEvent(_this){
+    	var testLogId = $(_this).attr("data-testLogId");
+    	if(testLogId){
+    		//重置开始考试时间
+    		Kino.ajax(port.tikuapi + "/api3th/zuoti/keep.do", function (resp) {
+    			location.href = "/tiku2/exam"+testLogId+".html";
+            }, {
+                data: {"testLogId":testLogId},
+                type: "post"
+            });	
+    	}
+    }
+</script> 
+  <script src="https://lstatic.xisaiwang.com/public/js/md5.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.educity.cn/public/js/template.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.xisaiwang.com/educity/pc/cmsng/js/jquery.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.xisaiwang.com/educity/pc/cmsng/js/superSlide.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.xisaiwang.com/educity/pc/cmsng/js/my.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.xisaiwang.com/educity/pc/cmsng/js/studyPackDetail.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.xisaiwang.com/public/plugins/sweetalert/sweetalert.min.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.xisaiwang.com/educity/pc/cmsng/js/common.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.xisaiwang.com/educity/pc/cmsng/js/login.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.xisaiwang.com/educity/pc/cmsng/js/ad.js?v=181506"></script> 
+  <script type="text/javascript" src="https://lstatic.xisaiwang.com/public/plugins/layui/layui.js?v=181506"></script> 
+  <link rel="stylesheet" href="https://lstatic.xisaiwang.com/educity/pc/cmsng/css/contact-pop.css?v=181506" /> 
+  <script>
+	    var _hmt = _hmt || [];
+	    (function () {
+		    var hm = document.createElement("script");
+		    	hm.src = "https://hm.baidu.com/hm.js?555d9dcffdcb317595de82b0fc125cdf";
+		    var s = document.getElementsByTagName("script")[0];
+		    s.parentNode.insertBefore(hm, s);
+
+		    var bp = document.createElement('script');
+		    var curProtocol = window.location.protocol.split(':')[0];
+		    if (curProtocol === 'https') {
+			    bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+		    }
+		    else {
+			    bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+		    }
+		    var s = document.getElementsByTagName("script")[0];
+		    s.parentNode.insertBefore(bp, s);
+	    })();
+    </script> 
+  <div class="contact-way-wrap" style="display: none"> 
+   <p class="way-title">您希望我们通过哪种方式与您联系？</p> 
+   <div class="contact-way-content"> 
+    <span class="contact-way" way="All"> 
+     <div class="way-img"> 
+      <img src="https://lstatic.xisaiwang.com/educity/pc/cmsng/img/contact/tel.png" alt="" /> 
+      <span>电话</span> 
+     </div> 
+     <div class="way-img"> 
+      <img src="https://lstatic.xisaiwang.com/educity/pc/cmsng/img/contact/wx.png" alt="" /> 
+      <span>微信</span> 
+     </div> 
+     <div class="way-img"> 
+      <img src="https://lstatic.xisaiwang.com/educity/pc/cmsng/img/contact/qq.png" alt="" /> 
+      <span>QQ</span> 
+     </div> </span> 
+    <span class="contact-way" way="Tel"> 
+     <div class="way-img"> 
+      <img src="https://lstatic.xisaiwang.com/educity/pc/cmsng/img/contact/tel.png" alt="" /> 
+      <span>电话</span> 
+     </div> </span> 
+    <span class="contact-way" way="Wx"> 
+     <div class="way-img"> 
+      <img src="https://lstatic.xisaiwang.com/educity/pc/cmsng/img/contact/wx.png" alt="" /> 
+      <span>微信</span> 
+     </div> </span> 
+    <span class="contact-way" way="Qq"> 
+     <div class="way-img"> 
+      <img src="https://lstatic.xisaiwang.com/educity/pc/cmsng/img/contact/qq.png" alt="" /> 
+      <span>QQ</span> 
+     </div> </span> 
+    <span class="contact-way" way="No"> 
+     <div class="way-img"> 
+      <img src="https://lstatic.xisaiwang.com/educity/pc/cmsng/img/contact/no.png" alt="" /> 
+      <span>不联系</span> 
+     </div> </span> 
+   </div> 
+   <div class="way-warn-wrap"> 
+    <p class="way-warn" way="All">您已选择电话/微信/QQ的联系方式，课程顾问会尽快联系您！</p> 
+    <p class="way-warn" way="Wx">您已选择微信联系方式，课程顾问会尽快添加您的微信，请您确认通过！</p> 
+    <p class="way-warn" way="Qq">您已选择QQ联系方式，课程顾问会尽快添加您的QQ，请您确认通过！</p> 
+    <p class="way-warn" way="Tel">您已选择电话联系方式，课程顾问会尽快联系您！</p> 
+    <p class="way-warn" way="No">您已选择“不联系”，课程顾问不会主动联系您。<br />如果后续您有需求，可以在个人中心主动添加销售微信或拨打客服电话：400-111-9811</p> 
+   </div> 
+   <div class="way-submit-wrap"> 
+    <span class="way-submit">确认提交</span> 
+   </div> 
+  </div> 
+  <script>
+    var layer;
+    layui.use(['layer'], function () {
+        layer = layui.layer; //弹层
+        var popType = ""
+        $.get("/ucapi/user/popContactWay.do?ver=1", function (res) {
+            if (res && res.model && res.model == "Y") {
+                layer.open({
+                    type: 1,
+                    title: "",
+                    closeBtn: 0, //不显示关闭按钮
+                    anim: 2,
+                    shadeClose: false, //开启遮罩关闭
+                    area: ['800', '400'],
+                    content: $(".contact-way-wrap")
+                });
+            }
+            if (res.extraDataMap && res.extraDataMap.popType) popType = res.extraDataMap.popType;
+        })
+        var _TOKEN_ = localStorage.getItem("_TOKEN_");
+        if (_TOKEN_) {
+            $.ajax({
+                url: "/passport/user/syncToken.do",
+                type: 'post',
+                async: false,
+                data: { "token": _TOKEN_ },
+                crossDomain:true,
+                beforeSend: function (xhr) {
+                    xhr.withCredentials = true;
+                },
+                complete: function () {
+                    localStorage.removeItem("_TOKEN_");
+                    location.reload();
+                }
+            });
+        }
+        $(document).on("click", ".contact-way", function () {
+            $(this).addClass("act").siblings().removeClass("act");
+            $(".way-warn[way=" + $(this).attr("way") + "]").addClass("act").siblings().removeClass("act");
+        });
+        $(document).on("click", ".way-submit", function () {
+            var $contactWay = $(".contact-way.act");
+            if ($contactWay.length > 0) {
+                $.post("/ucapi/user/saveContactWay.do?contactWay=" + $(".contact-way.act").attr('way') + "&popType=" + popType)
+                layer.closeAll();
+            } else {
+                layer.msg("请选择联系方式！");
+            }
+        });
+    });
+
+    //免费课程预约
+    function freeActLog(_this){
+        var skuIdT = $(_this).attr("data-skuId");
+        Kino.ajax(port.productapi+"/uc/openLiveAppoint/add.do", function (res) {
+            layer.msg('预约成功', {icon: 1});
+            $(".freeActLog").hide();
+        }, {
+            data:{"skuId":skuIdT},
+            type:"post",
+            async:false
+        });
+    }
+
+    //关闭弹窗
+    function closepop(ithis) {
+        $(ithis).parents(".hjpop_new:first").hide();
+    }
+
+    var _subjectCode_ = ""
+    if (_subjectCode_ && _subjectCode_ != "") {
+/*         var exp = new Date();
+        exp.setTime(exp.getTime() + 1 * 24 * 60 * 60 * 1000);
+        document.cookie = "_subjectCode_" + "=" + _subjectCode_ + ";domain=educity.cn;path=/;expires=" + exp.toGMTString(); */
+    	Kino.setCookie("_subjectCode_", _subjectCode_, 24);
+    }
+
+    //获取cookie的值
+    function getCookie(name) {
+        var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+        return (arr = document.cookie.match(reg)) ? unescape(arr[2]) : null;
+    }
+
+    function setCookie(key, value, options) {
+        return (document.cookie = [
+            encodeURIComponent(key), '=', value,
+            options && options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options && options.path ? '; path=' + options.path : '',
+            options && options.domain ? '; domain=' + options.domain : '',
+            options && options.secure ? '; secure' : ''
+        ].join(''))
+    }
+
+    $(function () {
+        $("a").each(function () {
+            if ($(this).attr("href") && $(this).attr("href").indexOf("openJesongChatByGroup") >= 0) {
+                var fun = $(this).attr("href");
+                $(this).attr("href", "javascript:void(0);");
+                $(this).attr("onclick", fun);
+            }
+        });
+        var curr = new Date().getTime();
+        var start = new Date("2021/06/15 00:00:00").getTime();
+        var end = new Date("2021/06/18 23:59:59").getTime();
+        var path = ['/zq/', '/jjcy/', '/qh/', '/ccbp/', '/jjs/', '/pmp/', '/npdp/', '/acp/', '/jianzaoshi1/', '/jianzaoshi2/', '/rk/isen/index.html', '/rk/iten/index.html', '/rk/net/index.html', '/rk/prog/index.html', '/rk/cxy/index.html'];
+
+        if (start < curr && curr < end && path.indexOf(location.pathname) >= 0) {
+            $(".ecv2_navs").after("<div style='width: 1200px;margin: 18px auto;'><a href='/award/618act.html?pdggw' class='_anchor_' anchor-params='mdId' anchor-mdId='1132' target='_blank' rel='nofollow'><img src='https://static.educity.cn/images/article/2021-06/944/EFnKbjr7cU.jpg' alt=''></a></div>");
+        }
+        $(".ecv2_logo").find("a").eq(1).find("span:contains('专注在线教育21年')").closest("a").html('<span style="color: #666666;font-size: 20px;"><img src="https://static.educity.cn/docs/articleVideo/2021-12/120/9hqTY2J65w.gif" alt=""></span>');
+        $(".ecv2_logo").find("span:contains('专注在线教育21年')").closest("a").html('<span style="color: #666666;font-size: 20px;"><img src="https://static.educity.cn/docs/articleVideo/2021-12/120/9hqTY2J65w.gif" alt=""></span>');
+
+        // $(".ecv2_right_tools ul").prepend('<a href="/rk/2313700.html?dh" target="_blank" class="nrlb" style="background: url(https://static.educity.cn/images/baidu_ziyuan/2021-11/838/PcfWr9Ef2q.jpg) no-repeat center;background-size: 80px 68px;top: -80px;"></a>');
+    
+    
+    	var repExamInfos = $(document).find("[text-model=Y]").each(function(i, item){
+    		$(item).parent().addClass("dateDown_new")
+    		$(item).parents(".ecv2_panel_right").find(".ecv2_count_down_wrap").remove();
+    		var textContent = $(item).attr("text-content");
+    		if(textContent && textContent != ""){
+    			$(item).html(textContent);
+    		}
+    	})
+        $("[class='exam-title']").each(function () {
+            var title = $(this).attr("text-title");
+            if (title && title != "") {
+                $(this).html(title);
+            }
+        })
+    })
+</script> 
+  <style>
+    .marquee {
+        white-space: nowrap;
+        　　 /* 文字不折行 */ 　　overflow: -webkit-marquee;
+        　　 /* 只有设置为marquee才有滚动效果 */ /*　　width: 170px;　　!* 不是必须的 *!*/ 　　-webkit-marquee-direction: left;
+        　　 /* 文字滚动方向 可选值为left | right | up | down */ 　　-webkit-marquee-speed: normal;
+        　　 /* 文字滚动速度 可选值为slow | normal | fast */ 　　-webkit-marquee-style: scroll;
+        　　 /* 文字滚动方式 可选值为scroll | slide | alternate */ 　　-webkit-marquee-repetition: 1;
+        　　 /* 文字滚动次数 number | infinite ， infinite即无限次循环滚动 */
+    }
+</style>
+ </body>
+</html>
