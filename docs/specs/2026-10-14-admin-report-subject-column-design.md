@@ -83,6 +83,11 @@ GET /api/admin/reports?status=&page=
 2. **分页总数不受影响**。`base.Count(&total)`（:55 / :75）复用的是**带 JOIN 的同一个 base**，总数是在 JOIN 之后的结果集上数的——所以这条新增 JOIN 必须保证不改变行数：`subjects.id` 是主键，`ON s.id = q.subject_id` 最多命中一行，行数不变，`total` 与列表仍对得上。这也正是此处不能改成 `INNER JOIN` 的第二个理由（`total` 会**少**）、更不能挂一张一对多的表（`total` 会**多**，末页变空）。
 3. **不给 `question_reports` 加冗余 `subject_id` 列**：那是数据重复，题目改科目后必然漂移；科目统一经题目推导。
 4. **科目在后台被改名** → 列表下次查询即为新名（JOIN 实时取值，不经任何缓存）。
+5. **`questions.subject_id` 有 `DEFAULT '1'`**（`backend/migrations/000_baseline_schema.sql:92`），而 `subjects.id = 1` 是「系统架构设计师」且启用中（`001_baseline_seed.sql:36`）。所以**「从没设过科目」的题目不会渲染成 `-`，而是显示「系统架构设计师」**——一个自信但可能错的答案。
+
+   管理员正是靠这一列判断该把反馈转给谁，所以这个区别要写下来。`-` 只出现在两种情况下：题目被删（JOIN 不到 `questions`），或 `subject_id` 指向不存在的科目。
+
+   本次不修：数据库层面区分不了「显式选了系统架构设计师」与「压根没设」，两者都是 `1`；要区分就得动 schema 或回填数据，都超出本设计「不动数据库结构」的范围。
 
 ## 测试
 
