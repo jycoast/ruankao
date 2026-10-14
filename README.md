@@ -76,7 +76,7 @@ Go >= 1.24、Node.js >= 18、MySQL >= 8.0、Redis >= 7，Docker 可选。
 docker compose up -d --build
 ```
 
-compose 定义三个服务：MySQL（宿主机 **33060**）、Redis（**63790**）、后端（**8080**）。MySQL 首次初始化时会自动执行 `backend/migrations/` 下的建库基线。
+MySQL 首次初始化时会自动执行 `backend/migrations/` 下的建库基线。
 
 ### 方式二：本地开发
 
@@ -121,7 +121,7 @@ jwt:
 
 敏感项均可用环境变量覆盖（`SOFTWARE_EXAM_` 前缀 + 下划线分层，如 `SOFTWARE_EXAM_DATABASE_PASSWORD`），完整列表见 `backend/config/config.go` 的 `BindEnv` 调用。
 
-前端只有一个变量 `VITE_API_BASE_URL`，它唯一决定产物里的 API 地址：同源部署填 `/api`，前后端分离部署填后端完整地址（如 `https://api.example.com/api`）。**生产构建缺失该变量会直接失败**，避免静默产出坏包。
+前端变量 ：`VITE_API_BASE_URL`，指定后端接口地址。
 
 ## 项目结构
 
@@ -147,16 +147,7 @@ software-exam/
 
 ## 数据说明
 
-本仓库不含题库数据。`backend/migrations/` 顶层只有两个合并基线，均幂等，重复执行无害：`000_baseline_schema.sql` 建全部表结构，`001_baseline_seed.sql` 写科目、会员套餐等配置型维表。
-
-自行导入题目时，按建出的表结构写入即可，约定：
-
-- 纯补充，不修改已有数据；按题干（而非题号）查重
-- `knowledge_point` 格式为 `主类>子类`，主类沿用已有分类，不要新建
-
-## 部署
-
-前端为纯静态产物，`npm run build`（含类型检查与 SEO 预渲染）后可托管在任意静态服务；后端与 MySQL / Redis 部署在服务器，由 Nginx 反代。本项目线上即采用「静态托管前端 + 独立域名后端 API」的拓扑。
+本仓库不含题库数据，可自行导入数据。
 
 ## 贡献
 
