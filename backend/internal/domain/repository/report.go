@@ -41,12 +41,16 @@ func (r *QuestionReportRepositoryImpl) ListAll(page, pageSize, status int) ([]Qu
 	var list []QuestionReportView
 	var total int64
 
+	// 科目须经题目推导（question_reports 自己没有 subject_id）。必须 LEFT：
+	// INNER 会把「题目已被删」的反馈整条隐藏，还会让下面 Count 出的 total 偏小。
 	base := r.db.Table("question_reports qr").
 		Select("qr.id, qr.question_id, qr.user_id, qr.report_type, qr.description, qr.status, qr.admin_note, qr.created_at, " +
 			"u.username, q.title AS question_title, q.year AS question_year, q.question_type AS question_type, " +
-			"SUBSTR(q.content, 1, 300) AS question_content, SUBSTR(q.content, 1, 100) AS question_preview").
+			"SUBSTR(q.content, 1, 300) AS question_content, SUBSTR(q.content, 1, 100) AS question_preview, " +
+			"s.name AS subject_name").
 		Joins("LEFT JOIN users u ON u.id = qr.user_id").
-		Joins("LEFT JOIN questions q ON q.id = qr.question_id")
+		Joins("LEFT JOIN questions q ON q.id = qr.question_id").
+		Joins("LEFT JOIN subjects s ON s.id = q.subject_id")
 
 	if status >= 0 {
 		base = base.Where("qr.status = ?", status)
@@ -64,12 +68,16 @@ func (r *QuestionReportRepositoryImpl) ListByUserID(userID uint64, page, pageSiz
 	var list []QuestionReportView
 	var total int64
 
+	// 与 ListAll 的 Select/Join 逐字一致，保持同一个 View 的字段处处可用：
+	// 只改一处会让 subject_name 变成时有时无的字段。
 	base := r.db.Table("question_reports qr").
-		Select("qr.id, qr.question_id, qr.user_id, qr.report_type, qr.description, qr.status, qr.admin_note, qr.created_at, "+
-			"u.username, q.title AS question_title, q.year AS question_year, q.question_type AS question_type, "+
-			"SUBSTR(q.content, 1, 300) AS question_content, SUBSTR(q.content, 1, 100) AS question_preview").
+		Select("qr.id, qr.question_id, qr.user_id, qr.report_type, qr.description, qr.status, qr.admin_note, qr.created_at, " +
+			"u.username, q.title AS question_title, q.year AS question_year, q.question_type AS question_type, " +
+			"SUBSTR(q.content, 1, 300) AS question_content, SUBSTR(q.content, 1, 100) AS question_preview, " +
+			"s.name AS subject_name").
 		Joins("LEFT JOIN users u ON u.id = qr.user_id").
 		Joins("LEFT JOIN questions q ON q.id = qr.question_id").
+		Joins("LEFT JOIN subjects s ON s.id = q.subject_id").
 		Where("qr.user_id = ?", userID)
 
 	base.Count(&total)
