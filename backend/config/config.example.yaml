@@ -1,0 +1,107 @@
+# 配置模板。复制为 config.yaml（或本机覆盖层 config.local.yaml）后填写实际值。
+# 敏感项（数据库密码 / JWT secret / 支付与 OAuth 密钥 / OSS 密钥）不要提交进版本库，
+# 也可以用环境变量注入（SOFTWARE_EXAM_*，见 config.go 的 BindEnv 列表），
+# docker-compose 即在 environment 里全部走 env 注入。
+server:
+  port: 8080
+  # debug / test / release。本地想看路由表可改 debug（前端走 vite proxy，不依赖 CORS 通配）。
+  mode: release
+  # 站点对外地址（含协议，末尾不带 /）。留空则不对外提供 sitemap。
+  site_url: ""
+
+# 主机名 mysql / redis 是 compose 的服务名，只在容器网络里可解析。
+# 本机开发请在 config.local.yaml 里覆盖为可达地址。
+database:
+  host: localhost
+  port: 3306
+  user: root
+  password: "" # 必填
+  dbname: software_exam
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+
+jwt:
+  # 必填。release 下必须 ≥32 字符的随机串（占位值/空值会拒绝启动），
+  # 例: openssl rand -base64 48
+  secret: ""
+  expire_hour: 72
+  guest_expire_hour: 24
+
+# 反爬：限流阈值与可疑行为判定（次/分钟）
+anticrawl:
+  enable: true
+  global_per_min: 120 # 每用户全局限额
+  data_per_min: 30 # 题库/试卷/知识点等数据接口限额
+  auth_per_min: 10 # 登录/注册按 IP 限额
+  suspect_per_min: 10 # 被标记用户的降速限额
+  distinct_questions_24h: 500 # 24h 内访问不同题目数阈值，超过即降速
+  sequential_threshold: 45 # 最近50次详情访问中递增ID次数阈值（顺序遍历检测）
+  # CORS 白名单。留空时：release 不发 CORS 头（同源部署无需跨域），debug 才回退为 *。
+  allow_origins: []
+
+# 登录失败锁定：账号 5 次 / IP 20 次，15 分钟窗口。
+# Redis 不可用时 fail-open，不影响正常登录。
+auth_lock:
+  enable: true
+  max_fails_user: 5   # 同账号连续失败阈值
+  max_fails_ip: 20    # 同 IP 连续失败阈值（校园网等共享出口更宽松）
+  window_sec: 900     # 计数窗口与锁定期（秒）
+
+# 对象存储（腾讯云 COS），后台编辑器粘贴上传图片用。留空则该功能不可用。
+oss:
+  endpoint: "" # 留空自动拼 https://<bucket>.cos.<region>.myqcloud.com
+  access_key: "" # SecretId
+  secret_key: "" # SecretKey
+  bucket: "" # 存储桶名，需带 APPID，如 exam-1250000000
+  region: "ap-guangzhou" # 地域，如 ap-guangzhou
+  base_url: "" # CDN/自定义域名，留空用存储桶默认域名
+  dir: "ruankao"
+  max_size_mb: 5
+
+oauth:
+  frontend_url: "https://exam.example.com"
+  linuxdo:
+    client_id: "" # 在 Linux Do 控制台创建 OAuth 应用后获取
+    client_secret: ""
+    authorize_endpoint: "https://connect.linux.do/oauth2/authorize"
+    # 下面两个端点走自建反代，供服务端直连官方受限的环境使用；不反代可留空
+    token_endpoint: ""
+    user_endpoint: ""
+    redirect_url: "" # 例 https://exam.example.com/api/auth/oauth/linuxdo/callback
+  # LinuxDo 首次登录赠送会员：仅 OAuth 新建账号发放一次，老用户/邮箱合并用户不发。
+  first_login_bonus:
+    enable: true   # 总开关
+    plan: "month"  # 复用 membership_plans.plan_key
+    days: 7        # 赠送天数
+    title: "首登福利到账" # 站内通知标题
+
+# 易支付（彩虹易支付/码支付 通用接口）。pid/key 留空即视为未配置。
+yipay:
+  api_url: "" # 支付网关，必须以 / 结尾
+  pid: "" # 商户ID
+  key: "" # 商户密钥
+  notify_url: "" # 异步回调（必须公网可达）
+  return_url: "" # 同步跳转回前端
+
+# LINUX DO Credit 积分支付（易支付兼容接口，MD5 签名）。
+# 凭证在 https://credit.linux.do/merchant 创建应用后获取。留空则前端不展示该支付方式。
+ldc:
+  api_url: "https://credit.linux.do/epay" # 网关基址，不带结尾斜杠
+  pid: "" # Client ID
+  key: "" # Client Secret
+  notify_url: "" # 异步回调（必须公网可达）
+  return_url: "" # 同步跳转回前端
+
+# 悦通云支付（SHA256WithRSA 签名）。密钥是非对称两把：
+# merchant_private_key 给下单签名，platform_public_key 给回调验签，缺一即视为未配置。
+yuetongyun:
+  api_url: "https://yuetongyun.cn" # 网关基址，不带结尾斜杠
+  pid: "" # 商户ID
+  merchant_private_key: "" # 商户私钥（PKCS#8 裸 base64）
+  platform_public_key: "" # 平台公钥（PKIX 裸 base64），用于回调验签
+  notify_url: "" # 异步回调（必须公网可达）
+  return_url: "" # 同步跳转回前端

@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (build + test)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: software_exam
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache-dependency-path: backend/go.sum
+      - name: Build
+        working-directory: backend
+        run: go build ./...
+      - name: Test
+        working-directory: backend
+        run: go test ./...
+        env:
+          # 测试库账号；实际连接串见各测试自身的环境准备
+          SOFTWARE_EXAM_DATABASE_PASSWORD: root
+      # 守住「公开仓库克隆下来仍能建库」。顶层只剩合并基线，改了基线而没跑通这里会直接红。
+      # 必须用 config.example.yaml —— config.yaml 不入库，CI 里不存在。
+      - name: Migrate smoke test
+        working-directory: backend
+        run: go run ./cmd/migrate -config config/config.example.yaml
+        env:
+          SOFTWARE_EXAM_DATABASE_HOST: 127.0.0.1
+          SOFTWARE_EXAM_DATABASE_PASSWORD: root
+          # example 是 mode: release，validate() 要求 secret 非空、≥32 字符且不是仓库占位值
+          SOFTWARE_EXAM_JWT_SECRET: ci-migrate-smoke-secret-0123456789abcdef
+      - name: Assert baseline tables
+        run: |
+          n=$(mysql -h127.0.0.1 -uroot -proot -N -B software_exam \
+                -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='software_exam'")
+          echo "tables=$n"
+          # 43 张业务表 + schema_migrations
+          [ "$n" -ge 44 ] || { echo "基线建表数不足：期望 >=44，实际 $n"; exit 1; }
+
+  frontend:
+    name: Frontend (type-check + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install
+        working-directory: frontend
+        run: npm ci
+      # build = vue-tsc -b && vite build && prerender。
+      # 构建期预渲染是 fail-soft：CI 里连不上 API，预渲染会告警并跳过，dist 也整个丢弃，
+      # 所以这里给一个占位地址即可 —— vite.config.ts 的构建期断言只要求「非空」。
+      # 真实部署必须由部署侧提供真实地址（见 frontend/build/apiBaseUrl.ts），缺了会直接构建失败。
+      - name: Type-check + Build
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: http://api.invalid/api

@@ -1,0 +1,23 @@
+# 构建上下文只需要源码与配置。以下内容不参与 go build，
+# 但会被 Dockerfile 的 COPY . . 一并送进构建，白白拖慢构建并撑大镜像。
+
+# 题库导入源数据（约 8.7MB）。题库已改由 migrations/*.sql 导入，
+# 这批 JSON 仅作历史留档，运行时不读取。
+import/
+
+# 迁移脚本由 cmd/migrate 在宿主机上执行，不在容器内运行；合并建库基线同理
+# （compose 的 initdb 走 bind mount，不受本文件影响）。
+migrations/
+
+# 本机开发覆盖层，含只在本机可达的库地址。一旦进镜像会盖掉 config.yaml
+# 里的 mysql / redis 服务名，容器将连不上数据库，必须排除。
+config/config.local.yaml
+config/config.yaml.bak
+
+# 本地编译产物
+*.exe
+server
+
+# IDE
+.vscode/
+.idea/

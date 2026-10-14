@@ -1,0 +1,4 @@
+# SQL 一律以 LF 存储与检出。
+# cmd/migrate -status 用文件 md5 判断「执行后是否被改过」，行尾若被 core.autocrlf
+# 转成 CRLF，基线会被误报为「已修改过」。
+*.sql text eol=lf

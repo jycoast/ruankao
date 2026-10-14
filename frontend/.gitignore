@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.local
+
+# vue-tsc -b 的产物
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

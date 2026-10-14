@@ -1,0 +1,80 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+
+# vue-tsc -b 的产物。vite.config.js 会抢在 vite.config.ts 前被 Vite 加载，
+# 一旦被提交就会用陈旧配置覆盖真实配置，必须忽略。
+frontend/vite.config.js
+frontend/vite.config.d.ts
+# build/ 下是同样由 vue-tsc -b 产出的声明文件，每次构建重新生成。
+frontend/build/*.d.ts
+*.tsbuildinfo
+
+# 本机开发覆盖层，只写与 config.yaml 不同的项（库地址等），不进版本控制。
+backend/config/config.local.yaml
+# 真实生产配置含密钥，不入版本库；公开仓库使用 config.example.yaml 模板。
+backend/config/config.yaml
+
+# 前端真实环境变量（含线上 API 地址），不入版本库；模板见 frontend/.env.example
+frontend/.env*
+!frontend/.env.example
+.env
+.gocache
+
+# Python 字节码缓存
+__pycache__/
+*.pyc
+
+# 虚拟环境。venv 模块会在环境内自动写一个内容为 `*` 的 .gitignore，
+# 靠它自引用才隐形；那个文件一旦丢失，整棵环境树就会裸露成未跟踪目录。
+# 显式忽略，不再依赖它。
+.venv/
+venv/
+
+# 题库原始资料（PDF 扫描件），体积大且不参与构建。
+软件设计师历年真题/
+真题及解析（2020年-2024年）/
+credit/
+backend/import/pmp_2013_2017/
+
+# AI 解析续跑状态（checkpoint + 日志），本机临时，跑完可丢弃
+backend/import/*/explain_checkpoint.json
+backend/import/*/anli_explain_checkpoint.json
+backend/import/*/explain_log.jsonl
+backend/import/*/anli_explain_log.jsonl
+
+# 临时爬虫/调试产物（根目录散落）
+/gh_*.json
+/gitee_*.json
+/bing_search.html
+
+# Claude Code 本地配置（user/agents/memory），不进版本库
+.claude/
+
+# superpowers 插件的头脑风暴临时文件（mockup/状态），不进版本库。
+.superpowers/
+# superpowers 插件的设计/计划过程文档（含内部部署信息），不进版本库
+/docs/superpowers/
+
+.fc_cookie.txt
+
+# —— 历史迁移与题库数据（只开源代码，二者都在私有仓库）——
+# migrations/ 下只保留合并建库基线，其余（含 data/ 数据迁移）本地可存在但不入库。
+backend/migrations/*
+!backend/migrations/000_baseline_schema.sql
+!backend/migrations/001_baseline_seed.sql
+# 爬虫原始题卷 JSON / sid 清单 / 抓取日志
+backend/import/cnitpm/*.json
+backend/import/cnitpm/*.txt
+backend/import/cnitpm/*.log
+backend/import/cnitpm/_tmp/
+backend/import/pmp/*.json
+backend/import/sa/*.json
+backend/import/andynull/*.json
+# 临时脚本 / 抓取产物
+backend/tmp_listcos/
+# 题目图片（正文以 ![](/images/xxx.png) 引用），随数据自备
+frontend/public/images/
+# fangcai 爬取快照
+/fc_analyst_papers.json

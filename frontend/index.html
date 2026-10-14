@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!-- html 上的壳标记：Service Worker 只把带此属性的导航响应写进 index.html 缓存键，
+     避免预渲染的静态内容页覆盖离线兜底壳（判定逻辑见 vite.config.ts）。 -->
+<html lang="zh-CN" data-app-shell>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/pwa-icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="软考星图" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>软考星图 - 软考知识导图与论文范文</title>
+    <meta
+      name="description"
+      content="软考星图：系统架构设计师、软件设计师等软考科目的知识点梳理与论文范文，配套真题练习。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="软考星图 - 软考知识导图与论文范文" />
+    <meta
+      property="og:description"
+      content="软考星图：系统架构设计师、软件设计师等软考科目的知识点梳理与论文范文，配套真题练习。"
+    />
+    <script>
+      // 老 hash 链接兼容：站点曾用 hash 路由，已分发的外链形如 /#/knowledge/310。
+      // 命中就把 hash 里的路由整段交给 history 路由：/#/login?redirect=x → /login?redirect=x。
+      // query 在 hash 内，slice(1) 已含 ?query，不能再拼 location.search（那是空串，拼了会丢 query）。
+      // 用 startsWith('#/') 而非「有 hash 就跳」，避免误伤纯锚点（#section）。
+      if (window.location.hash.startsWith('#/')) {
+        window.location.replace(window.location.hash.slice(1))
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

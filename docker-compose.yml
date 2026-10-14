@@ -1,0 +1,81 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: software-exam-mysql
+    environment:
+      # 从宿主机环境变量或同目录 .env 读取，不写死在版本控制里
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-}
+      MYSQL_DATABASE: software_exam
+      MYSQL_CHARSET: utf8mb4
+      TZ: Asia/Shanghai
+    ports:
+      - "33060:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/migrations/000_baseline_schema.sql:/docker-entrypoint-initdb.d/000_baseline_schema.sql
+      - ./backend/migrations/001_baseline_seed.sql:/docker-entrypoint-initdb.d/001_baseline_seed.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: software-exam-redis
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "63790:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: software-exam-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - GIN_MODE=release
+      - TZ=Asia/Shanghai
+      # 站点对外地址，sitemap / canonical 需要绝对 URL；留空则不对外提供 sitemap
+      - SOFTWARE_EXAM_SERVER_SITE_URL=${SOFTWARE_EXAM_SERVER_SITE_URL:-}
+      # 凭据经环境变量注入；容器内固定读 config/config.yaml（见 cmd/server/main.go:92），
+      # 该文件由宿主机复制 config.example.yaml 得到，不入库。
+      - SOFTWARE_EXAM_JWT_SECRET=${SOFTWARE_EXAM_JWT_SECRET:-}
+      - SOFTWARE_EXAM_DATABASE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      # 数据库 / Redis 地址默认取镜像内的 config/config.yaml（容器网络里是服务名 mysql / redis）。
+      # 要连容器外的库时在 .env 里覆盖。留空即回落到 config.yaml，不会把地址清空。
+      # 注意 localhost 在容器内指向容器自身；连宿主机上的库要用宿主机地址
+      # （Docker Desktop 用 host.docker.internal，Linux 用 172.17.0.1 或宿主机局域网 IP）。
+      - SOFTWARE_EXAM_DATABASE_HOST=${SOFTWARE_EXAM_DATABASE_HOST:-}
+      - SOFTWARE_EXAM_DATABASE_PORT=${SOFTWARE_EXAM_DATABASE_PORT:-}
+      - SOFTWARE_EXAM_DATABASE_USER=${SOFTWARE_EXAM_DATABASE_USER:-}
+      - SOFTWARE_EXAM_REDIS_HOST=${SOFTWARE_EXAM_REDIS_HOST:-}
+      - SOFTWARE_EXAM_REDIS_PORT=${SOFTWARE_EXAM_REDIS_PORT:-}
+      - SOFTWARE_EXAM_OAUTH_LINUXDO_CLIENT_ID=${SOFTWARE_EXAM_OAUTH_LINUXDO_CLIENT_ID:-}
+      - SOFTWARE_EXAM_OAUTH_LINUXDO_CLIENT_SECRET=${SOFTWARE_EXAM_OAUTH_LINUXDO_CLIENT_SECRET:-}
+      - SOFTWARE_EXAM_YIPAY_PID=${SOFTWARE_EXAM_YIPAY_PID:-}
+      - SOFTWARE_EXAM_YIPAY_KEY=${SOFTWARE_EXAM_YIPAY_KEY:-}
+      - SOFTWARE_EXAM_LDC_PID=${SOFTWARE_EXAM_LDC_PID:-}
+      - SOFTWARE_EXAM_LDC_KEY=${SOFTWARE_EXAM_LDC_KEY:-}
+      - SOFTWARE_EXAM_YUETONGYUN_PID=${SOFTWARE_EXAM_YUETONGYUN_PID:-}
+      - SOFTWARE_EXAM_YUETONGYUN_MERCHANT_PRIVATE_KEY=${SOFTWARE_EXAM_YUETONGYUN_MERCHANT_PRIVATE_KEY:-}
+      - SOFTWARE_EXAM_YUETONGYUN_PLATFORM_PUBLIC_KEY=${SOFTWARE_EXAM_YUETONGYUN_PLATFORM_PUBLIC_KEY:-}
+      - SOFTWARE_EXAM_OSS_ACCESS_KEY=${SOFTWARE_EXAM_OSS_ACCESS_KEY:-}
+      - SOFTWARE_EXAM_OSS_SECRET_KEY=${SOFTWARE_EXAM_OSS_SECRET_KEY:-}
+    restart: on-failure
+
+volumes:
+  mysql_data:

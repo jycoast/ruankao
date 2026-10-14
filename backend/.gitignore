@@ -1,0 +1,20 @@
+# 忽略 IDE
+.vscode/
+.idea/
+
+# 忽略编译产物
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 忽略测试
+*.test
+*.out
+
+# 忽略 Go vendor
+vendor/
+
+# 忽略证书文件
+certs/

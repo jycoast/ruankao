@@ -1,0 +1,9 @@
+# Cloudflare Pages 响应头（构建时 public/ 内容原样拷入 dist 根，随部署生效）
+# SW 本体与清单必须 no-cache：浏览器/边缘缓存会卡死 SW 更新检测（浏览器对 SW 脚本
+# 缓存上限 24h，配 no-cache 才能保证每次发版后 5 分钟内的 update() 拉到新 sw.js）。
+/sw.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
