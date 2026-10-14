@@ -150,13 +150,18 @@ var AppConfig Config
 // JWT secret 泄露 = 任何人可自签 role:1 的 token，因此 release 下必须拒绝启动。
 const placeholderJWTSecret = "software-exam-secret-key-change-in-production"
 
+// envPrefix 是环境变量前缀，yaml 里的层级用 _ 连接
+// （SOFTWARE_EXAM_DATABASE_PASSWORD → database.password）。
+// 测试里清理继承来的环境变量时也要用它，别再写第二份字面量。
+const envPrefix = "SOFTWARE_EXAM"
+
 func Load(path string) error {
 	viper.SetConfigFile(path)
 	viper.SetConfigType("yaml")
 
 	// 环境变量优先于 yaml：SOFTWARE_EXAM_JWT_SECRET / _DATABASE_PASSWORD / _REDIS_PASSWORD 等
 	// （yaml 里的层级用 _ 连接）。让凭据可以完全不进版本控制。
-	viper.SetEnvPrefix("SOFTWARE_EXAM")
+	viper.SetEnvPrefix(envPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 	// AutomaticEnv 对 Unmarshal 中未在 yaml 出现的键不生效，敏感项显式绑定

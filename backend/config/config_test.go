@@ -7,6 +7,26 @@ import (
 	"testing"
 )
 
+// TestMain 在跑任何用例前，清掉进程里继承来的 SOFTWARE_EXAM_* 环境变量。
+//
+// 本文件大半用例断言的是「这个值来自 yaml」或「来自 config.local.yaml 覆盖层」，
+// 而 viper 的 SetEnvPrefix + AutomaticEnv（见 config.go 的 Load）会把同名环境变量
+// 当成优先级更高的配置来源。只要环境里有，这些断言就会拿到环境变量的值而假红：
+//   - CI 的 Test 步骤曾经注入 SOFTWARE_EXAM_DATABASE_PASSWORD: root，
+//     直接把 TestLocalOverrideMergesOntoBase 顶红；
+//   - 开发者本机 export 过数据库口令/密钥也一样会中招。
+//
+// 需要环境变量的用例自己用 t.Setenv 显式设置，在这里清完之后设置，不受影响。
+// 清理放在 TestMain 而不是逐个用例里，是为了让以后新加的用例默认就是封闭的。
+func TestMain(m *testing.M) {
+	for _, kv := range os.Environ() {
+		if key, _, ok := strings.Cut(kv, "="); ok && strings.HasPrefix(key, envPrefix+"_") {
+			os.Unsetenv(key)
+		}
+	}
+	os.Exit(m.Run())
+}
+
 func writeCfg(t *testing.T, body string) string {
 	t.Helper()
 	p := filepath.Join(t.TempDir(), "config.yaml")
