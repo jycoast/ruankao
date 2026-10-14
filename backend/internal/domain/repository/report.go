@@ -71,9 +71,9 @@ func (r *QuestionReportRepositoryImpl) ListByUserID(userID uint64, page, pageSiz
 	// 与 ListAll 的 Select/Join 逐字一致，保持同一个 View 的字段处处可用：
 	// 只改一处会让 subject_name 变成时有时无的字段。
 	base := r.db.Table("question_reports qr").
-		Select("qr.id, qr.question_id, qr.user_id, qr.report_type, qr.description, qr.status, qr.admin_note, qr.created_at, " +
-			"u.username, q.title AS question_title, q.year AS question_year, q.question_type AS question_type, " +
-			"SUBSTR(q.content, 1, 300) AS question_content, SUBSTR(q.content, 1, 100) AS question_preview, " +
+		Select("qr.id, qr.question_id, qr.user_id, qr.report_type, qr.description, qr.status, qr.admin_note, qr.created_at, "+
+			"u.username, q.title AS question_title, q.year AS question_year, q.question_type AS question_type, "+
+			"SUBSTR(q.content, 1, 300) AS question_content, SUBSTR(q.content, 1, 100) AS question_preview, "+
 			"s.name AS subject_name").
 		Joins("LEFT JOIN users u ON u.id = qr.user_id").
 		Joins("LEFT JOIN questions q ON q.id = qr.question_id").

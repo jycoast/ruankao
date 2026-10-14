@@ -84,5 +84,5 @@ type QuestionReportView struct {
 	QuestionContent string    `json:"question_content" gorm:"column:question_content"`
 	QuestionPreview string    `json:"question_preview" gorm:"column:question_preview"` // 兼容旧前端
 	// 科目名经 questions.subject_id 关联出来；题目缺失时为 NULL → 零值空串
-	SubjectName     string    `json:"subject_name" gorm:"column:subject_name"`
+	SubjectName string `json:"subject_name" gorm:"column:subject_name"`
 }
