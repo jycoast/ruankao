@@ -177,14 +177,16 @@ Expected: 编译失败，`undefined: ... SubjectName` 之类。这是第一层�
 
 - [ ] **Step 3: 加上 `SubjectName` 字段，让包先能编译**
 
-修改 `backend/internal/domain/repository/notification.go` 的 `QuestionReportView`（:71-86）。**只加一个字段**，`QuestionPreview` 那行不动；`SubjectName` 比现有最长字段名短，gofmt 的对齐列不会变，diff 应当只有三行：
+修改 `backend/internal/domain/repository/notification.go` 的 `QuestionReportView`（:71-86）。**只加一个字段**，`QuestionPreview` 那行不动：
 
 ```go
 	QuestionPreview string    `json:"question_preview" gorm:"column:question_preview"` // 兼容旧前端
 	// 科目名经 questions.subject_id 关联出来；题目缺失时为 NULL → 零值空串
-	SubjectName     string    `json:"subject_name" gorm:"column:subject_name"`
+	SubjectName string `json:"subject_name" gorm:"column:subject_name"`
 }
 ```
+
+> **`SubjectName` 后面是单空格，不是补齐到对齐列。** 上面那行独立注释切断了对齐组，gofmt 因此把它单独算一组——写成 `SubjectName     string` 是不合 gofmt 的。这一点容易想当然（"新字段名比现有最长字段短，对齐列不变"），第一版计划就是这么写错的，实测 `gofmt -d` 会报出来。写完请按下面的命令自查。
 
 - [ ] **Step 4: 再跑测试，这回红在 SQL 上**
 
@@ -239,9 +241,9 @@ func (r *QuestionReportRepositoryImpl) ListByUserID(userID uint64, page, pageSiz
 	// 与 ListAll 的 Select/Join 逐字一致，保持同一个 View 的字段处处可用：
 	// 只改一处会让 subject_name 变成时有时无的字段。
 	base := r.db.Table("question_reports qr").
-		Select("qr.id, qr.question_id, qr.user_id, qr.report_type, qr.description, qr.status, qr.admin_note, qr.created_at, " +
-			"u.username, q.title AS question_title, q.year AS question_year, q.question_type AS question_type, " +
-			"SUBSTR(q.content, 1, 300) AS question_content, SUBSTR(q.content, 1, 100) AS question_preview, " +
+		Select("qr.id, qr.question_id, qr.user_id, qr.report_type, qr.description, qr.status, qr.admin_note, qr.created_at, "+
+			"u.username, q.title AS question_title, q.year AS question_year, q.question_type AS question_type, "+
+			"SUBSTR(q.content, 1, 300) AS question_content, SUBSTR(q.content, 1, 100) AS question_preview, "+
 			"s.name AS subject_name").
 		Joins("LEFT JOIN users u ON u.id = qr.user_id").
 		Joins("LEFT JOIN questions q ON q.id = qr.question_id").
@@ -274,6 +276,14 @@ cd backend && go build ./... && go test ./...
 ```
 
 Expected: 全部 PASS。特别留意 `dashboard_test.go`（只数 `question_reports` 行数）与 `notification_test.go`（`fakeReportRepo` 是接口实现）——按设计它们应当**不受影响**；如果这里红了，说明判断错了，回来重新分析。
+
+顺带跑一遍 gofmt 自查。**注意本机工作区是 CRLF（仓库 `core.autocrlf=true`，git 里存的 blob 是 LF），直接 `gofmt -l` 会把每个文件都判为需格式化——那是行尾假象。** 要先归一化行尾再问 gofmt：
+
+```bash
+cd backend && for f in internal/domain/repository/report.go internal/domain/repository/notification.go internal/domain/repository/report_test.go; do echo "== $f"; tr -d '\r' < "$f" | gofmt -d; done
+```
+
+Expected: 三处都无输出。若有输出，照着把它改掉——**CI 没有 gofmt 闸门，这个偏差不会有人替你拦下来**，会静默进入 main。
 
 - [ ] **Step 9: 提交**
 
