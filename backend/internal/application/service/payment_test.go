@@ -368,8 +368,18 @@ func TestMembershipStatus_NotMember_ExpireAtNull(t *testing.T) {
 
 // 有效会员：is_member=true、expire_at 非 null、days_left 按剩余天数向上取整。
 func TestMembershipStatus_ActiveMember(t *testing.T) {
+	// 到期时间取 48h 再留 1 分钟余量，别卡在 48h 整这个分界点上。
+	//
+	// Status 内部会自己再取一次 time.Now()(见 payment.go)，与这里造 ExpireAt 的那次之间
+	// 必然有耗时 δ，于是实际剩余 d = 48h − δ。而实现是 int(d.Hours()/24)+1：
+	// d 只要比 48h 小一点点，int 就把 2 截成 1，days_left 变 2。
+	//
+	// δ 是否恰好为 0 取决于时钟粒度 —— Windows 上连续两次 time.Now() 绝大多数返回同一个值
+	// (实测 20 万次里 99.998% 相同)，δ=0，所以本机一直是绿的；Linux 是纳秒级时钟，
+	// δ 恒大于 0，CI 上必红。用 48h 整断言，等于把用例成败交给平台时钟精度。
+	// 加 1 分钟余量后 d 稳定落在 48h 之上，与 δ 无关(δ 是微秒量级)。
 	memRepo := &fakeMembershipRepo{m: &model.Membership{
-		UserID: 42, Plan: "month", ExpireAt: time.Now().Add(48 * time.Hour),
+		UserID: 42, Plan: "month", ExpireAt: time.Now().Add(48*time.Hour + time.Minute),
 	}}
 	svc := NewMembershipService(memRepo)
 
@@ -383,7 +393,7 @@ func TestMembershipStatus_ActiveMember(t *testing.T) {
 	if st.Plan != "month" {
 		t.Fatalf("Plan 应透传 month，得到 %q", st.Plan)
 	}
-	if st.DaysLeft != 3 { // 48h → int(48/24)+1 = 3
+	if st.DaysLeft != 3 { // 略多于 48h → int(48h/24h)+1 = 3
 		t.Fatalf("48h 剩余应算 3 天，得到 %d", st.DaysLeft)
 	}
 }
