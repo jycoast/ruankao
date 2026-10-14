@@ -12,7 +12,11 @@ type User struct {
 	Phone        string    `gorm:"size:20;default:''" json:"phone"`
 	Role         int8      `gorm:"default:0;not null" json:"role"`
 	Status       int8      `gorm:"default:1;not null" json:"status"`
-	LinuxDoID    uint64    `gorm:"default:0;index" json:"-"` // 0=未绑定
+	// 列名必须显式写死：GORM 的命名策略会把 LinuxDoID 推成 linux_do_id，
+	// 而本表列实际叫 linuxdo_id（见 000_baseline_schema.sql 的 users 表，
+	// 以及 repository/user.go 的 FindByLinuxDoID 里的原生 SQL）。
+	// 不加这个标签，ORM 写的列和原生 SQL 读的列就是两列。
+	LinuxDoID    uint64    `gorm:"column:linuxdo_id;default:0;index" json:"-"` // 0=未绑定
 	SubjectID    uint64    `gorm:"default:1;not null" json:"subject_id"` // 当前考试科目(跨设备同步)
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
@@ -27,6 +31,8 @@ type UserProfile struct {
 	TotalCorrect   int        `gorm:"default:0" json:"total_correct"`
 	TotalTime      int        `gorm:"default:0" json:"total_time"`
 	StreakDays     int        `gorm:"default:0" json:"streak_days"`
+	// 本表列名是 last_practice_date(DATE)；user_subject_stats 的同名字段是
+	// last_practice_at(DATETIME)，两张表列名不同，别互相复制标签。
 	LastPracticeAt *time.Time `gorm:"column:last_practice_date" json:"last_practice_date"`
 	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt      time.Time  `json:"updated_at"`
@@ -438,7 +444,10 @@ type UserSubjectStat struct {
 	TotalCorrect   int        `gorm:"default:0" json:"total_correct"`
 	TotalTime      int        `gorm:"default:0" json:"total_time"`
 	StreakDays     int        `gorm:"default:0" json:"streak_days"`
-	LastPracticeAt *time.Time `gorm:"column:last_practice_date" json:"last_practice_date"`
+	// 本表列名是 last_practice_at(DATETIME)，与 user_profiles 的
+	// last_practice_date(DATE) 不同名。曾经把上面那张表的标签复制到这里，
+	// 导致 SELECT 静默取零、INSERT/UPDATE 报 1054，整张表写入全失败。
+	LastPracticeAt *time.Time `gorm:"column:last_practice_at" json:"last_practice_at"`
 	CreatedAt      time.Time  `json:"created_at"`
 	UpdatedAt      time.Time  `json:"updated_at"`
 }

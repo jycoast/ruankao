@@ -11,9 +11,14 @@
 --      migrations/084_daily_sessions.sql 的原始 CREATE TABLE 定义补入，
 --      表尾的 ENGINE/CHARSET 按本文件统一规则改写。
 --   2) users.linux_do_id —— 该列（含为其建的索引 idx_linux_do_id）不收录。
---      它没有任何迁移创建过（全仓搜索无 SQL 引用），是生产库里的孤儿列；
---      代码实际使用的是 linuxdo_id 与 idx_linuxdo_id
---      （见 backend/internal/domain/repository/user.go:71）。
+--      注意别把它当孤儿列：全仓确实没有 SQL 引用它，但 GORM 的命名策略会把
+--      model.User.LinuxDoID 推成列名 linux_do_id，线上 696 个 OAuth 绑定实际
+--      写在这一列里（2026-10-14 实测：linux_do_id 有值 696 行，linuxdo_id 全 0）。
+--      正确的列是 linuxdo_id（repository/user.go 的 FindByLinuxDoID 读的就是它），
+--      模型侧已补显式 `gorm:"column:linuxdo_id"` 把两者对齐。
+--      因此：新库按本文件建出来只有 linuxdo_id，是对的；已有库需跑
+--      migrations/restore_users_linuxdo_id_1_copy.sql 搬数据，发布后再跑
+--      restore_users_linuxdo_id_2_drop_orphan.sql 删掉该列。
 --
 -- 统一化处理（相对生产库 SHOW CREATE TABLE 输出）：
 --   - 表尾统一为 ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

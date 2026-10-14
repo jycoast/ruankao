@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"math"
 	"time"
 
@@ -500,12 +501,18 @@ func (s *PracticeService) updateSubjectStats(userID, subjectID uint64, isCorrect
 	stat, err := s.subjectStatRepo.FindOne(userID, subjectID)
 	if err != nil {
 		stat = &model.UserSubjectStat{
-			UserID:        userID,
-			SubjectID:     subjectID,
+			UserID:    userID,
+			SubjectID: subjectID,
 		}
+		// 并发首答会同时走到这里，两个请求各插一行会撞唯一键 uk_user_subject，
+		// 插入失败就回读已有行继续累加。
+		//
+		// 必须用 err 判断是否读到行：FindOne 出错时返回的是非 nil 的零值指针，
+		// 判 stat == nil 恒为假。此前这里就是靠这条死分支，把一个根本没能落库的
+		// 新行（user_id/subject_id 都是 0）当成正常行继续累加并写回。
 		if e := s.subjectStatRepo.Create(stat); e != nil {
-			stat, _ = s.subjectStatRepo.FindOne(userID, subjectID)
-			if stat == nil {
+			stat, err = s.subjectStatRepo.FindOne(userID, subjectID)
+			if err != nil {
 				return
 			}
 		}
@@ -530,7 +537,12 @@ func (s *PracticeService) updateSubjectStats(userID, subjectID uint64, isCorrect
 		stat.StreakDays = 1
 	}
 	stat.LastPracticeAt = &now
-	_ = s.subjectStatRepo.Save(stat)
+	// 这里曾经是 `_ = s.subjectStatRepo.Save(stat)`：写回失败被彻底吞掉，
+	// 学习报告读到空行后把连续天数/累计练习一律显示成 0，
+	// 线上静默错了两个月才被用户发现。写失败必须留痕。
+	if err := s.subjectStatRepo.Save(stat); err != nil {
+		log.Printf("[practice] 写回科目统计失败 user=%d subject=%d: %v", userID, subjectID, err)
+	}
 }
 
 func boolToInt8(b bool) int8 {
