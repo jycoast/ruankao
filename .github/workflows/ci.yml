@@ -44,12 +44,26 @@ jobs:
       # 必须用 config.example.yaml —— config.yaml 不入库，CI 里不存在。
       - name: Migrate smoke test
         working-directory: backend
-        run: go run ./cmd/migrate -config config/config.example.yaml
         env:
           SOFTWARE_EXAM_DATABASE_HOST: 127.0.0.1
           SOFTWARE_EXAM_DATABASE_PASSWORD: root
           # example 是 mode: release，validate() 要求 secret 非空、≥32 字符且不是仓库占位值
           SOFTWARE_EXAM_JWT_SECRET: ci-migrate-smoke-secret-0123456789abcdef
+        # 这一步失败时，Actions 页面上只看得到「exit code 1」—— 步骤原始日志要登录才能下载。
+        # 而真正的错因在 migrate 自己的 log.Fatalf 里（配置 / 连库 / 某条 SQL），
+        # 所以把输出收下来，失败时用 ::error:: 注解回抛（注解无需登录即可见）。
+        # 只捕获输出、不改退出码：命令本身怎么跑还是怎么跑。
+        run: |
+          set +e
+          out=$(go run ./cmd/migrate -config config/config.example.yaml 2>&1)
+          rc=$?
+          printf '%s\n' "$out"
+          if [ "$rc" -ne 0 ]; then
+            # 注解正文里换行要转义，用 | 压成一行；截断以免注解被 UI 折叠掉关键尾部
+            msg=$(printf '%s' "$out" | tail -30 | tr '\n' '|' | cut -c1-2000)
+            echo "::error title=migrate 退出码 $rc::$msg"
+          fi
+          exit "$rc"
       - name: Assert baseline tables
         run: |
           n=$(mysql -h127.0.0.1 -uroot -proot -N -B software_exam \
