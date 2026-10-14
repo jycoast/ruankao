@@ -415,21 +415,38 @@ Expected: `git status` 无输出（干净）。日志里能看到 Task 1 与 Tas
 git push origin main
 ```
 
-- [ ] **Step 3: 等 CI 跑完，并读最终判据（分支徽章）**
+- [ ] **Step 3: 等 CI 跑完，并读最终判据**
 
-CI 大约要几分钟。**不要用前台 `sleep` 轮询**——Claude Code 的 Bash 工具会拒绝前台 sleep。用 Monitor 的 until-loop（或等一会儿再手动重跑本步）。
+CI 大约要几分钟。**不要用前台 `sleep` 轮询**——Claude Code 的 Bash 工具会拒绝前台 sleep。用 Monitor 的 until-loop，或把自己放进 `run_in_background` 的循环里。
 
-判据只用这一条，它不需要 run id：
+> **不要只看分支徽章。** 第一版计划说「判据只用徽章」，实测是错的：新 run 已经排上但还在跑时，
+> 徽章会**继续吐上一次的 `passing`**（陈旧绿）。实测过一次——`git push` 后几秒抓徽章已经是
+> `<title>CI - passing</title>`，而同一 sha 的 run 在 API 里还是 `in_progress`。等它跑完你会拿到一个
+> 从来没验证过的「绿」。
+
+权威判据是公开 REST API（公开仓库免登录可读，限流 60 次/小时）：
 
 ```bash
-curl -s "https://github.com/jycoast/ruankao/actions/workflows/ci.yml/badge.svg?branch=main" | grep -o '<title>[^<]*</title>'
+curl -s "https://api.github.com/repos/jycoast/ruankao/actions/runs?branch=main&per_page=3" \
+  | grep -o '"head_sha": "[a-f0-9]*"\|"status": "[a-z_]*"\|"conclusion": [a-z"]*'
 ```
 
-Expected: `<title>CI - passing</title>`。
+Expected: 第一组是 `"head_sha"` 等于你刚推的 sha，且 `"status": "completed"`、`"conclusion": "success"`。
+**先比对 sha 再信 conclusion**——只看 `conclusion: success` 会读到上一次 run 的结论。
 
-脚本还在跑时会看到 `<title>CI - (pending|running)</title>` 之类的中间态，那不代表失败；重跑本步直到出现 `passing` 或 `failing`。
+跑完之前 `"status"` 是 `"in_progress"`/`"queued"`，`"conclusion": null`，那不代表失败（也不代表成功）；
+隔 30 秒重跑本步。要让每个 job 的结论可见：
 
-**若看到 `failing`，不要只凭 run 页上的 `octicon-x-circle-fill` 判定哪个 job 红**——那个图标是页面骨架，会误判。走 Step 4 读注解，那里才有真正的错因。
+```bash
+curl -s "https://api.github.com/repos/jycoast/ruankao/actions/runs/<run_id>/jobs" \
+  | grep -o '"name": "[^"]*"\|"conclusion": [a-z"]*'
+```
+
+**若结论是 `failure`，不要凭 run 页上的 `octicon-x-circle-fill` 判定哪个 job 红**——那个图标是页面骨架，
+会误判。走 Step 4 读注解，那里才有真正的错因。
+
+（徽章不是完全没用：run 已 `completed` 之后它和 API 一致，适合事后瞄一眼。但它不能用来判断
+「我刚推的这次绿没绿」。）
 
 - [ ] **Step 4: 若 CI 红（或想确认注解区干净），读注解**
 
