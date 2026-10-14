@@ -98,6 +98,11 @@ jobs:
       - name: Install
         working-directory: frontend
         run: npm ci
+      # vitest 跑纯函数单测（environment: node，无组件测试）。
+      # 放在 build 之前：单测失败比 vue-tsc/vite 报错定位快得多。
+      - name: Test
+        working-directory: frontend
+        run: npm test
       # build = vue-tsc -b && vite build && prerender。
       # 构建期预渲染是 fail-soft：CI 里连不上 API，预渲染会告警并跳过，dist 也整个丢弃，
       # 所以这里给一个占位地址即可 —— vite.config.ts 的构建期断言只要求「非空」。
