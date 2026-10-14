@@ -166,11 +166,14 @@ export interface QuestionReport {
   admin_note: string
   created_at: string
   question_preview: string
-  // 管理端列表附带题目识别字段（标题/年份/题型/题干摘要），便于直接定位并编辑
+  // 管理端列表附带题目识别字段（标题/年份/题型/题干摘要/科目），便于直接定位并编辑
   question_title?: string
   question_year?: number
   question_type?: number
   question_content?: string
+  // 题目的科目名，由后端经题目推导（questions.subject_id → subjects.name）；
+  // 题目已被删时后端给空串，渲染成「-」
+  subject_name?: string
 }
 
 export interface Feedback {

@@ -139,6 +139,11 @@ async function handleSaved() {
           <div v-if="row.question_title" class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ row.question_title }}</div>
         </template>
       </el-table-column>
+      <el-table-column label="科目" width="120">
+        <template #default="{ row }: { row: any }">
+          <span class="text-sm">{{ row.subject_name || '-' }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="题干摘要" min-width="280">
         <template #default="{ row }: { row: any }">
           <span class="text-sm text-gray-600 dark:text-gray-400">{{ snippetOf(row) }}</span>
