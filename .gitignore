@@ -74,7 +74,8 @@ backend/import/sa/*.json
 backend/import/andynull/*.json
 # 临时脚本 / 抓取产物
 backend/tmp_listcos/
-# 题目图片（正文以 ![](/images/xxx.png) 引用），随数据自备
-frontend/public/images/
+# 题目图片（正文以 ![](/images/xxx.png) 引用）。必须放在 public/images/ 下：
+# Vite 只把 publicDir（=public/）原样带进 dist/，放别处不会被构建收录，
+# 线上 /images/... 会落到 SPA 兜底的 index.html，表现为碎图。
 # fangcai 爬取快照
 /fc_analyst_papers.json
