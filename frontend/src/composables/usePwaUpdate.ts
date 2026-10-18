@@ -54,6 +54,14 @@ function applyUpdate(registration: ServiceWorkerRegistration): void {
   }
 }
 
+// 普通刷新不会激活 waiting 中的新 SW：浏览器要等受旧 SW 控制的所有页面关闭才激活，
+// 只刷新当前页时 waiting 原样保留，于是每次加载都会再弹一次「发现新版本」。
+// 用户主动刷新即视为接受更新：直接放行，不重复提示。
+function isReloadNavigation(): boolean {
+  const [nav] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[]
+  return nav?.type === 'reload'
+}
+
 export function startPwaUpdate(): void {
   // 开发模式不注册 SW(无产物可服务);无 SW 环境(隐私模式/老浏览器)静默降级。
   if (import.meta.env.DEV) return
@@ -68,7 +76,14 @@ export function startPwaUpdate(): void {
       // 之后 update() 拉到的 sw.js 与 waiting 版字节相同，不会再触发 updatefound，
       // 该版本的更新提示就永远丢了 —— 注册完成后要主动补一次提示。
       // 首次安装时 controller 为空，notifyUpdate 内部会拦住，不会误弹。
-      if (registration.waiting) notifyUpdate(registration)
+      // 若是刷新页面带出的 waiting，则视为用户已确认更新，静默接管。
+      if (registration.waiting) {
+        if (isReloadNavigation()) {
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+        } else {
+          notifyUpdate(registration)
+        }
+      }
       // 新 SW 安装完成 → 有新版本待接管
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing
