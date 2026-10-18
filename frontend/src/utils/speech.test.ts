@@ -15,6 +15,10 @@ describe('pickEnglishVoice', () => {
     expect(pickEnglishVoice(voices)?.lang).toBe('en-GB')
   })
 
+  it('裸 en 音色也能被选中', () => {
+    expect(pickEnglishVoice([voice('en')])?.lang).toBe('en')
+  })
+
   it('只有非英语音色时返回 null', () => {
     expect(pickEnglishVoice([voice('zh-CN'), voice('ja-JP')])).toBeNull()
   })

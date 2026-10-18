@@ -239,30 +239,31 @@ const emptyText = computed(() => {
     <!-- 卡片背诵 -->
     <div v-if="mode === 'card'">
       <div v-if="current">
-        <!-- 外层用 div 而不是 button：喇叭是真正的 <button>，button 嵌套 button 是非法 DOM -->
-        <div
-          role="button"
-          tabindex="0"
-          class="flex min-h-[220px] w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
-          @click="flipped = !flipped"
-          @keydown.enter="flipped = !flipped"
-          @keydown.space.prevent="flipped = !flipped"
-        >
-          <div class="flex items-center justify-center gap-2">
-            <span class="text-2xl font-bold text-slate-900 dark:text-white">{{ current.word }}</span>
-            <SpeakerButton :text="current.word" />
+        <!-- 卡片用 div role="button"；喇叭是真正的 <button>，作为兄弟节点放在卡片外，
+             避免 role=button 内的嵌套交互控件（button 嵌套 button 亦非法 DOM） -->
+        <div class="relative">
+          <div
+            role="button"
+            tabindex="0"
+            class="flex min-h-[220px] w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white p-8 pr-12 text-center shadow-sm transition hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:border-slate-800 dark:bg-slate-900"
+            @click="flipped = !flipped"
+            @keydown.enter="flipped = !flipped"
+            @keydown.space.prevent="flipped = !flipped"
+          >
+            <div class="text-2xl font-bold text-slate-900 dark:text-white">{{ current.word }}</div>
+            <div v-if="current.phonetic" class="font-mono text-sm text-slate-500 dark:text-slate-400">{{ current.phonetic }}</div>
+            <template v-if="flipped">
+              <div class="text-lg text-blue-600 dark:text-blue-400">{{ current.meaning }}</div>
+              <div v-if="current.example" class="mt-1 max-w-lg space-y-1">
+                <div class="text-sm italic text-slate-600 dark:text-slate-300">{{ current.example }}</div>
+                <div v-if="current.exampleZh" class="text-xs text-slate-400 dark:text-slate-500">{{ current.exampleZh }}</div>
+              </div>
+            </template>
+            <div v-else class="text-sm text-slate-400">点击卡片显示释义</div>
+            <el-tag size="small" type="info" class="mt-1">{{ current.category }}</el-tag>
+            <span v-if="mastered.has(current.word)" class="text-xs text-emerald-500">✓ 已掌握</span>
           </div>
-          <div v-if="current.phonetic" class="font-mono text-sm text-slate-500 dark:text-slate-400">{{ current.phonetic }}</div>
-          <template v-if="flipped">
-            <div class="text-lg text-blue-600 dark:text-blue-400">{{ current.meaning }}</div>
-            <div v-if="current.example" class="mt-1 max-w-lg space-y-1">
-              <div class="text-sm italic text-slate-600 dark:text-slate-300">{{ current.example }}</div>
-              <div v-if="current.exampleZh" class="text-xs text-slate-400 dark:text-slate-500">{{ current.exampleZh }}</div>
-            </div>
-          </template>
-          <div v-else class="text-sm text-slate-400">点击卡片显示释义</div>
-          <el-tag size="small" type="info" class="mt-1">{{ current.category }}</el-tag>
-          <span v-if="mastered.has(current.word)" class="text-xs text-emerald-500">✓ 已掌握</span>
+          <SpeakerButton class="absolute right-3 top-3" :text="current.word" />
         </div>
 
         <!-- 一遍走完：动作区换成完成提示与「重新开始」 -->

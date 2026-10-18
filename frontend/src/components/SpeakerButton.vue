@@ -12,11 +12,12 @@ const { isSupported, speak } = useSpeech()
   <button
     v-if="isSupported"
     type="button"
-    class="inline-flex shrink-0 items-center justify-center rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400"
-    aria-label="播放读音"
-    title="播放读音"
+    class="inline-flex shrink-0 items-center justify-center rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400"
+    :aria-label="`播放 ${text} 的读音`"
+    :title="`播放 ${text} 的读音`"
     @click.stop="speak(text)"
-    @keydown.stop
+    @keydown.enter.stop
+    @keydown.space.stop
   >
     <svg
       class="h-4 w-4"

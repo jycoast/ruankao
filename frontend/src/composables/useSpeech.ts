@@ -7,8 +7,11 @@ export function useSpeech() {
 
   function speak(text: string): void {
     if (!isSupported || !text) return
+    const synth = window.speechSynthesis
     // 连点喇叭时不排队：先停掉正在播的，再读最后一次点击的词
-    window.speechSynthesis.cancel()
+    // 只在真的有语音在播/排队时取消；无条件 cancel 紧接 speak 在部分 Chromium
+    // 版本会丢掉新语音（无语音时取消本身就是空操作）
+    if (synth.speaking || synth.pending) synth.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = 'en-US'
     utterance.rate = 0.9 // 略慢，便于跟读
