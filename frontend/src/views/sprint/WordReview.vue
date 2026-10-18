@@ -79,10 +79,11 @@ function savePosition(cat = category.value, m = mastery.value) {
   positions.value[positionKey(cat, m)] = index.value
 }
 
-// 按当前分类 × 掌握筛选重建卡组，并恢复该组合上次的位置（按新长度 clamp）
-function rebuildDeck() {
+// 按当前分类 × 掌握筛选重建卡组，并恢复该组合上次的位置（按新长度 clamp）。
+// restart 传入 0 直接从头开始，省掉一次位置查询。
+function rebuildDeck(forcedIndex?: number) {
   deck.value = pool.value.slice()
-  const saved = pickSavedIndex(positions.value, category.value, mastery.value)
+  const saved = forcedIndex ?? pickSavedIndex(positions.value, category.value, mastery.value)
   index.value = Math.min(Math.max(saved, 0), Math.max(deck.value.length - 1, 0))
 }
 
@@ -109,10 +110,14 @@ onMounted(() => {
   initialized = true
 })
 
-// 切换分类 / 掌握筛选：先记下旧组合的位置，再按新组合恢复
+// 切换分类 / 掌握筛选：仅在卡片模式下记下旧组合的位置并按新组合恢复。
+// 词表模式下 index 并未指向新组合，此时写位置会把陈旧索引记到别的键下；
+// 卡组等切回卡片模式时再按当时的筛选重建。
 function onFilterChange(oldCategory: string, oldMastery: MasteryFilter) {
-  savePosition(oldCategory, oldMastery)
-  if (mode.value === 'card') rebuildDeck()
+  if (mode.value === 'card') {
+    savePosition(oldCategory, oldMastery)
+    rebuildDeck()
+  }
   resetCardState()
   persistProgress()
 }
@@ -195,8 +200,7 @@ function prev() {
 
 // 一遍走完：按最新掌握状态重建卡组从头再来（「未掌握」下已掌握的词就此退出）
 function restart() {
-  rebuildDeck()
-  index.value = 0
+  rebuildDeck(0)
   resetCardState()
   savePosition()
   persistProgress()
