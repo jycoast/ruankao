@@ -131,20 +131,20 @@ async function reject() {
 
     <el-table :data="list" stripe>
       <el-table-column prop="id" label="ID" width="70" />
-      <el-table-column label="账号" min-width="140">
+      <el-table-column label="账号" min-width="160">
         <template #default="{ row }: { row: any }">
-          <div class="text-sm">{{ row.username }}</div>
-          <div class="text-xs text-slate-400">{{ row.email }}</div>
+          <div class="truncate text-sm" :title="row.username">{{ row.username }}</div>
+          <div class="truncate text-xs text-slate-400" :title="row.email">{{ row.email }}</div>
         </template>
       </el-table-column>
       <el-table-column label="提交时填写" min-width="140">
         <template #default="{ row }: { row: any }">
-          <span class="text-sm text-gray-600">{{ row.account }}</span>
+          <span class="block truncate text-sm text-gray-600" :title="row.account">{{ row.account }}</span>
         </template>
       </el-table-column>
       <el-table-column label="联系方式" min-width="130">
         <template #default="{ row }: { row: any }">
-          <span class="text-sm text-gray-600">{{ row.contact || '—' }}</span>
+          <span class="block truncate text-sm text-gray-600" :title="row.contact || ''">{{ row.contact || '—' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="来源 IP" width="130">

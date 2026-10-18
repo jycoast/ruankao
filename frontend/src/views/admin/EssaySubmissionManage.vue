@@ -82,8 +82,8 @@ function statusTag(s: number) {
       <el-table :data="list" v-loading="loading" stripe>
         <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="username" label="投稿人" width="120" />
-        <el-table-column prop="category" label="分类" width="120" />
+        <el-table-column prop="username" label="投稿人" width="120" show-overflow-tooltip />
+        <el-table-column prop="category" label="分类" width="120" show-overflow-tooltip />
         <el-table-column prop="year" label="年份" width="80" />
         <el-table-column prop="score" label="得分" width="80" />
         <el-table-column label="状态" width="100">

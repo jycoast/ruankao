@@ -79,7 +79,7 @@ async function resetPassword(user: User) {
 
 <template>
   <div>
-        <h2 class="text-xl font-bold mb-4">用户管理</h2>
+    <h2 class="mb-4 text-xl font-bold">用户管理</h2>
     <div class="mb-4 flex flex-wrap items-center gap-3">
       <el-input
         v-model="keyword"
@@ -103,26 +103,26 @@ async function resetPassword(user: User) {
       <el-button @click="reset">重置</el-button>
     </div>
     <el-table :data="users" stripe>
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="username" label="用户名" />
-      <el-table-column prop="email" label="邮箱" />
-      <el-table-column prop="nickname" label="昵称" />
-      <el-table-column prop="role" label="角色" width="100">
+      <el-table-column prop="id" label="ID" width="60" />
+      <el-table-column prop="username" label="用户名" min-width="120" show-overflow-tooltip />
+      <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
+      <el-table-column prop="nickname" label="昵称" min-width="110" show-overflow-tooltip />
+      <el-table-column prop="role" label="角色" width="90">
         <template #default="{ row }: { row: any }">
           <el-tag :type="row.role === 1 ? 'danger' : 'info'">{{ row.role === 1 ? '管理员' : '用户' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="状态" width="100">
+      <el-table-column prop="status" label="状态" width="80">
         <template #default="{ row }: { row: any }">
           <el-tag :type="row.status === 1 ? 'success' : 'danger'">{{ row.status === 1 ? '正常' : '禁用' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="is_member" label="会员" width="90">
+      <el-table-column prop="is_member" label="会员" width="80">
         <template #default="{ row }: { row: any }">
           <el-tag :type="row.is_member ? 'warning' : 'info'">{{ row.is_member ? '会员' : '非会员' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="days_left" label="剩余天数" width="130">
+      <el-table-column prop="days_left" label="剩余天数" width="110">
         <template #default="{ row }: { row: any }">
           <span v-if="row.is_member" :title="row.expire_at ? '到期时间：' + row.expire_at : ''">
             {{ row.days_left }} 天
@@ -130,7 +130,7 @@ async function resetPassword(user: User) {
           <span v-else class="text-gray-400">—</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="300">
+      <el-table-column label="操作" width="260">
         <template #default="{ row }: { row: any }">
           <el-button size="small" :type="row.status === 1 ? 'danger' : 'success'" @click="toggleStatus(row)">
             {{ row.status === 1 ? '禁用' : '启用' }}

@@ -92,8 +92,8 @@ async function remove(row: ScheduleRow) {
     />
 
     <el-table :data="list" stripe v-loading="loading">
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="label" label="排期名称" min-width="160" />
+      <el-table-column prop="id" label="ID" width="60" />
+      <el-table-column prop="label" label="排期名称" min-width="160" show-overflow-tooltip />
       <el-table-column label="考试日期" width="200">
         <template #default="{ row }: { row: any }">
           <span :class="row.exam_date?.slice(0, 10) < today ? 'text-slate-400' : ''">

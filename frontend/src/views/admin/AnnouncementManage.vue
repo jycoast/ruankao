@@ -75,8 +75,8 @@ async function toggleStatus(row: Announcement) {
     </div>
 
     <el-table :data="list" stripe>
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="title" label="标题" />
+      <el-table-column prop="id" label="ID" width="60" />
+      <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
       <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }: { row: any }">
           <el-tag :type="row.status === 1 ? 'success' : 'info'">{{ row.status === 1 ? '发布中' : '已下线' }}</el-tag>

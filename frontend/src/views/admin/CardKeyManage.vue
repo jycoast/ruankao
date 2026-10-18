@@ -216,14 +216,16 @@ const unusedCount = computed(() => list.value.filter((c) => c.status === 0).leng
       <el-table :data="list" v-loading="loading" stripe>
         <el-table-column prop="code" label="卡密" min-width="220">
           <template #default="{ row }: { row: any }">
-            <span class="font-mono font-medium">{{ row.code }}</span>
-            <el-button
-              size="small"
-              text
-              :icon="'CopyDocument'"
-              class="ml-1"
-              @click="copyText(row.code)"
-            />
+            <div class="flex min-w-0 items-center gap-1">
+              <span class="truncate font-mono font-medium" :title="row.code">{{ row.code }}</span>
+              <el-button
+                size="small"
+                text
+                :icon="'CopyDocument'"
+                class="shrink-0"
+                @click="copyText(row.code)"
+              />
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="套餐" width="110">

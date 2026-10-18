@@ -267,7 +267,9 @@ watch(tab, (v) => {
               <template #header><span class="text-sm font-semibold">用量 Top（不含自带 key）</span></template>
               <el-table :data="usage?.top_users || []" size="small" empty-text="暂无数据">
                 <el-table-column label="用户" min-width="140">
-                  <template #default="{ row }: { row: any }">{{ row.name || `#${row.key}` }}</template>
+                  <template #default="{ row }: { row: any }">
+                    <span class="block truncate" :title="row.name || `#${row.key}`">{{ row.name || `#${row.key}` }}</span>
+                  </template>
                 </el-table-column>
                 <el-table-column prop="calls" label="次数" width="80" />
                 <el-table-column label="Tokens" width="110">

@@ -220,8 +220,8 @@ async function saveSort() {
         <el-table-column prop="id" label="ID" width="70" />
         <el-table-column label="题干摘要" min-width="320">
           <template #default="{ row }: { row: any }">
-            <div class="text-sm text-gray-800 dark:text-gray-200">{{ snippetOf(row) }}</div>
-            <div class="mt-0.5 text-xs text-gray-400">{{ row.title }}</div>
+            <div class="truncate text-sm text-gray-800 dark:text-gray-200" :title="snippetOf(row)">{{ snippetOf(row) }}</div>
+            <div class="mt-0.5 truncate text-xs text-gray-400" :title="row.title">{{ row.title }}</div>
           </template>
         </el-table-column>
         <el-table-column label="题型" width="80">

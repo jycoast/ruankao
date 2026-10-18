@@ -118,7 +118,7 @@ function resetFilters() {
       </el-table-column>
       <el-table-column label="用户" width="120">
         <template #default="{ row }: { row: any }">
-          <span class="text-sm">{{ row.username || row.user_id }}</span>
+          <span class="block truncate text-sm" :title="String(row.username || row.user_id || '')">{{ row.username || row.user_id }}</span>
         </template>
       </el-table-column>
       <el-table-column label="套餐" width="110">
