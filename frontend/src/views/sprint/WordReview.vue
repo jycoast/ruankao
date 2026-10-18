@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { SPRINT_WORDS, type Word } from '@/data/sprintWords'
 import { filterWords, pickSavedIndex, positionKey, type MasteryFilter } from '@/utils/wordFilter'
+import SpeakerButton from '@/components/SpeakerButton.vue'
 
 const MASTERED_KEY = 'sprint_words_mastered'
 
@@ -238,11 +239,19 @@ const emptyText = computed(() => {
     <!-- 卡片背诵 -->
     <div v-if="mode === 'card'">
       <div v-if="current">
-        <button
-          class="flex min-h-[220px] w-full flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+        <!-- 外层用 div 而不是 button：喇叭是真正的 <button>，button 嵌套 button 是非法 DOM -->
+        <div
+          role="button"
+          tabindex="0"
+          class="flex min-h-[220px] w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
           @click="flipped = !flipped"
+          @keydown.enter="flipped = !flipped"
+          @keydown.space.prevent="flipped = !flipped"
         >
-          <div class="text-2xl font-bold text-slate-900 dark:text-white">{{ current.word }}</div>
+          <div class="flex items-center justify-center gap-2">
+            <span class="text-2xl font-bold text-slate-900 dark:text-white">{{ current.word }}</span>
+            <SpeakerButton :text="current.word" />
+          </div>
           <div v-if="current.phonetic" class="font-mono text-sm text-slate-500 dark:text-slate-400">{{ current.phonetic }}</div>
           <template v-if="flipped">
             <div class="text-lg text-blue-600 dark:text-blue-400">{{ current.meaning }}</div>
@@ -254,7 +263,7 @@ const emptyText = computed(() => {
           <div v-else class="text-sm text-slate-400">点击卡片显示释义</div>
           <el-tag size="small" type="info" class="mt-1">{{ current.category }}</el-tag>
           <span v-if="mastered.has(current.word)" class="text-xs text-emerald-500">✓ 已掌握</span>
-        </button>
+        </div>
 
         <!-- 一遍走完：动作区换成完成提示与「重新开始」 -->
         <div v-if="finished" class="mt-5 flex flex-col items-center gap-3 text-center">
@@ -288,7 +297,10 @@ const emptyText = computed(() => {
           class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 last:border-0 dark:border-slate-800"
         >
           <div class="min-w-0">
-            <div class="font-medium text-slate-800 dark:text-slate-100">{{ w.word }}</div>
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-slate-800 dark:text-slate-100">{{ w.word }}</span>
+              <SpeakerButton :text="w.word" />
+            </div>
             <div v-if="w.phonetic" class="font-mono text-sm text-slate-500 dark:text-slate-400">{{ w.phonetic }}</div>
             <div class="text-sm text-slate-500 dark:text-slate-400">{{ w.meaning }}</div>
             <div v-if="w.example" class="mt-1 text-xs italic text-slate-400 dark:text-slate-500">{{ w.example }}</div>
