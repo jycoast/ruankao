@@ -54,32 +54,32 @@ onMounted(load)
     </div>
 
     <el-table :data="list" v-loading="loading" stripe>
-      <el-table-column prop="id" label="ID" width="70" />
-      <el-table-column label="评论内容" min-width="280">
+      <el-table-column prop="id" label="ID" width="60" />
+      <el-table-column label="评论内容" min-width="260" show-overflow-tooltip>
         <template #default="{ row }">
-          <div class="whitespace-pre-wrap break-words">{{ row.comment_content }}</div>
+          <span class="text-sm">{{ row.comment_content }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="reason" label="举报理由" width="120" />
-      <el-table-column prop="author_nickname" label="评论作者" width="100" />
-      <el-table-column prop="reporter_nickname" label="举报人" width="100" />
-      <el-table-column label="状态" width="100">
+      <el-table-column prop="reason" label="举报理由" width="120" show-overflow-tooltip />
+      <el-table-column prop="author_nickname" label="评论作者" width="90" show-overflow-tooltip />
+      <el-table-column prop="reporter_nickname" label="举报人" width="90" show-overflow-tooltip />
+      <el-table-column label="状态" width="90">
         <template #default="{ row }">
           <el-tag :type="row.status === 0 ? 'danger' : 'info'">
             {{ row.status === 0 ? '待处理' : row.status === 1 ? '已处理' : '已驳回' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="时间" width="160">
+      <el-table-column label="时间" width="150">
         <template #default="{ row }">{{ new Date(row.created_at).toLocaleString('zh-CN') }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="180">
+      <el-table-column label="操作" width="150">
         <template #default="{ row }">
           <template v-if="row.status === 0">
             <el-button link size="small" type="danger" @click="handle(row.id, 'delete')">删除</el-button>
             <el-button link size="small" type="info" @click="handle(row.id, 'dismiss')">驳回</el-button>
           </template>
-          <span v-else class="text-xs text-gray-400">{{ row.admin_note || '—' }}</span>
+          <div v-else class="truncate text-xs text-gray-400" :title="row.admin_note || '—'">{{ row.admin_note || '—' }}</div>
         </template>
       </el-table-column>
     </el-table>

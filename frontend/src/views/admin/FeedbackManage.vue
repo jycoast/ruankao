@@ -101,15 +101,12 @@ async function handleUpdate(status: 1 | 2) {
   }
 }
 
-function truncate(text: string, len = 60) {
-  return text.length > len ? text.slice(0, len) + '…' : text
-}
-
-// 反馈内容是富文本 HTML：表格摘要先剥标签再截断，避免把 <p><img> 原文显示出来；纯图片反馈给个提示
+// 反馈内容是富文本 HTML：表格摘要先剥标签，纯图片反馈给个提示；
+// 长度交给列宽单行省略 + 悬停 tooltip，不在前端二次截断。
 function contentSnippet(r: { content?: string }): string {
   const t = stripHtml(r.content || '')
   if (!t) return '（仅图片，点「处理」查看）'
-  return truncate(t)
+  return t
 }
 
 // 题干摘要是 markdown，去格式后展示纯文本
@@ -186,53 +183,52 @@ async function handleSaved() {
     </div>
 
     <el-table :data="list" v-loading="loading" stripe>
-      <el-table-column prop="id" label="ID" width="70" />
-      <el-table-column label="类型" width="110">
+      <el-table-column prop="id" label="ID" width="60" />
+      <el-table-column label="类型" width="100">
         <template #default="{ row }: { row: any }">
           <el-tag size="small">{{ TYPE_LABELS[row.feedback_type] || '其他' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="关联题目" min-width="200">
+      <el-table-column label="关联题目" min-width="220">
         <template #default="{ row }: { row: any }">
-          <template v-if="row.question_id">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <el-tag v-if="row.question_type" size="small">{{ QUESTION_TYPE_LABELS[row.question_type] || '其他' }}</el-tag>
-              <el-tag v-if="row.question_year" size="small" type="info">{{ row.question_year }}年</el-tag>
-              <a
-                :href="`/questions/${row.question_id}`"
-                target="_blank"
-                class="text-blue-600 hover:underline"
-              >#{{ row.question_id }}</a>
-            </div>
-            <div class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ truncate(row.question_title || '', 20) }}</div>
-          </template>
+          <!-- 单行展示：标签 + 题号 + 标题；标题过长省略，悬停看全文 -->
+          <div v-if="row.question_id" class="flex min-w-0 items-center gap-1.5">
+            <el-tag v-if="row.question_type" size="small" class="shrink-0">{{ QUESTION_TYPE_LABELS[row.question_type] || '其他' }}</el-tag>
+            <el-tag v-if="row.question_year" size="small" type="info" class="shrink-0">{{ row.question_year }}年</el-tag>
+            <a
+              :href="`/questions/${row.question_id}`"
+              target="_blank"
+              class="shrink-0 text-blue-600 hover:underline"
+            >#{{ row.question_id }}</a>
+            <span v-if="row.question_title" class="truncate text-sm text-gray-700 dark:text-gray-300" :title="row.question_title">{{ row.question_title }}</span>
+          </div>
           <span v-else class="text-gray-300">—</span>
         </template>
       </el-table-column>
-      <el-table-column label="反馈内容" min-width="220">
+      <el-table-column label="反馈内容" min-width="240" show-overflow-tooltip>
         <template #default="{ row }: { row: any }">
           <span class="text-sm">{{ contentSnippet(row) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="联系方式" width="140">
+      <el-table-column label="联系方式" width="130" show-overflow-tooltip>
         <template #default="{ row }: { row: any }">
           <span class="text-sm text-gray-600">{{ row.contact || '—' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="提交用户" width="100" prop="username" />
-      <el-table-column label="状态" width="90">
+      <el-table-column label="提交用户" width="90" prop="username" show-overflow-tooltip />
+      <el-table-column label="状态" width="80">
         <template #default="{ row }: { row: any }">
           <el-tag :type="STATUS_LABELS[row.status]?.type as any" size="small">
             {{ STATUS_LABELS[row.status]?.text }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="提交时间" width="170">
+      <el-table-column label="提交时间" width="150">
         <template #default="{ row }: { row: any }">
           <span class="text-sm text-gray-500">{{ row.created_at?.slice(0, 16) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="100">
+      <el-table-column label="操作" width="90">
         <template #default="{ row }: { row: any }">
           <el-button size="small" type="primary" plain @click="openDetail(row)">处理</el-button>
         </template>

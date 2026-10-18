@@ -60,20 +60,23 @@ onMounted(load)
     </div>
 
     <el-table :data="list" v-loading="loading" stripe>
-      <el-table-column prop="id" label="ID" width="70" />
-      <el-table-column prop="nickname" label="用户" width="110" />
-      <el-table-column label="题干" min-width="180">
+      <el-table-column prop="id" label="ID" width="60" />
+      <el-table-column prop="nickname" label="用户" width="100" show-overflow-tooltip />
+      <el-table-column label="题干" min-width="220">
         <template #default="{ row }">
-          <span class="text-gray-500">#{{ row.question_id }}</span>
-          <div class="truncate text-xs text-gray-400">{{ row.question_snippet || '（空题干）' }}</div>
+          <!-- 单行展示：题号 + 题干摘要；过长省略，悬停看全文 -->
+          <div class="flex min-w-0 items-center gap-1.5">
+            <span class="shrink-0 text-gray-500">#{{ row.question_id }}</span>
+            <span class="truncate text-sm text-gray-400" :title="row.question_snippet || '（空题干）'">{{ row.question_snippet || '（空题干）' }}</span>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="内容" min-width="260">
+      <el-table-column label="内容" min-width="280" show-overflow-tooltip>
         <template #default="{ row }">
-          <div class="whitespace-pre-wrap break-words">{{ row.content }}</div>
+          <span class="text-sm">{{ row.content }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="100">
+      <el-table-column label="状态" width="90">
         <template #default="{ row }">
           <el-tag :type="row.status === 0 ? 'success' : 'warning'">
             {{ row.status === 0 ? '正常' : row.status === 1 ? '用户删除' : '隐藏' }}
@@ -83,7 +86,7 @@ onMounted(load)
       <el-table-column label="时间" width="160">
         <template #default="{ row }">{{ new Date(row.created_at).toLocaleString('zh-CN') }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="140">
+      <el-table-column label="操作" width="90">
         <template #default="{ row }: { row: any }">
           <el-button v-if="row.status !== 2" link size="small" type="danger" @click="setStatus(row, 2)">隐藏</el-button>
           <el-button v-else link size="small" type="success" @click="setStatus(row, 0)">恢复</el-button>

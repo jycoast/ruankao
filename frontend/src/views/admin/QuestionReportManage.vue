@@ -73,15 +73,11 @@ async function handleUpdate(status: 1 | 2) {
   }
 }
 
-function truncate(text: string, len = 60) {
-  return text.length > len ? text.slice(0, len) + '…' : text
-}
-
-// 题干摘要是 markdown，去格式后展示纯文本，管理员一眼认出是第几题
+// 题目识别摘要，纯文本即可：后端已把题干截到 300 字，
+// 列表里靠列宽单行省略、悬停 tooltip 看全文，这里不再二次截断。
 function snippetOf(r: { question_content?: string; question_preview?: string }): string {
   const t = stripMd(r.question_content || r.question_preview || '')
-  if (!t) return '（无题干）'
-  return t.length > 80 ? t.slice(0, 80) + '…' : t
+  return t || '（无题干）'
 }
 
 // 从报告拉完整题目（含选项）→ 交给公共编辑弹窗；题目可能已被删除，失败时提示。
@@ -124,55 +120,56 @@ async function handleSaved() {
     </div>
 
     <el-table :data="list" stripe>
-      <el-table-column prop="id" label="ID" width="70" />
-      <el-table-column label="题目" min-width="200">
+      <el-table-column prop="id" label="ID" width="60" />
+      <el-table-column label="题目" min-width="180">
         <template #default="{ row }: { row: any }">
-          <div class="flex flex-wrap items-center gap-1.5">
-            <el-tag v-if="row.question_type" size="small">{{ QUESTION_TYPE_LABELS[row.question_type] || '其他' }}</el-tag>
-            <el-tag v-if="row.question_year" size="small" type="info">{{ row.question_year }}年</el-tag>
+          <!-- 单行展示：标签 + 题号 + 标题；标题过长省略，悬停看全文，避免撑高行 -->
+          <div class="flex min-w-0 items-center gap-1.5">
+            <el-tag v-if="row.question_type" size="small" class="shrink-0">{{ QUESTION_TYPE_LABELS[row.question_type] || '其他' }}</el-tag>
+            <el-tag v-if="row.question_year" size="small" type="info" class="shrink-0">{{ row.question_year }}年</el-tag>
             <a
               :href="`/questions/${row.question_id}`"
               target="_blank"
-              class="text-blue-600 hover:underline"
+              class="shrink-0 text-blue-600 hover:underline"
             >#{{ row.question_id }}</a>
+            <span v-if="row.question_title" class="truncate text-sm text-gray-700 dark:text-gray-300" :title="row.question_title">{{ row.question_title }}</span>
           </div>
-          <div v-if="row.question_title" class="mt-1 text-sm text-gray-700 dark:text-gray-300">{{ row.question_title }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="科目" width="120">
+      <el-table-column label="科目" width="100" show-overflow-tooltip>
         <template #default="{ row }: { row: any }">
           <span class="text-sm">{{ row.subject_name || '-' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="题干摘要" min-width="280">
+      <el-table-column label="题干摘要" min-width="220" show-overflow-tooltip>
         <template #default="{ row }: { row: any }">
           <span class="text-sm text-gray-600 dark:text-gray-400">{{ snippetOf(row) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="问题类型" width="130">
+      <el-table-column label="问题类型" width="100">
         <template #default="{ row }: { row: any }">
           <el-tag size="small">{{ REPORT_TYPE_LABELS[row.report_type] || '其他' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="描述" min-width="180">
+      <el-table-column label="描述" min-width="140" show-overflow-tooltip>
         <template #default="{ row }: { row: any }">
-          <span class="text-sm">{{ truncate(row.description) }}</span>
+          <span class="text-sm">{{ row.description }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="提交用户" width="100" prop="username" />
-      <el-table-column label="状态" width="90">
+      <el-table-column label="提交用户" width="90" prop="username" show-overflow-tooltip />
+      <el-table-column label="状态" width="80">
         <template #default="{ row }: { row: any }">
           <el-tag :type="STATUS_LABELS[row.status]?.type as any" size="small">
             {{ STATUS_LABELS[row.status]?.text }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="提交时间" width="170">
+      <el-table-column label="提交时间" width="150">
         <template #default="{ row }: { row: any }">
           <span class="text-sm text-gray-500">{{ row.created_at?.slice(0, 16) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="180">
+      <el-table-column label="操作" width="170">
         <template #default="{ row }: { row: any }">
           <el-button size="small" type="primary" plain @click="openDetail(row)">处理</el-button>
           <el-button size="small" :loading="editLoadingId === row.question_id" @click="openEditQuestion(row)">编辑题目</el-button>
