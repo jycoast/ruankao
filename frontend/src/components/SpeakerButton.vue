@@ -16,6 +16,7 @@ const { isSupported, speak } = useSpeech()
     aria-label="播放读音"
     title="播放读音"
     @click.stop="speak(text)"
+    @keydown.stop
   >
     <svg
       class="h-4 w-4"
