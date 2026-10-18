@@ -84,6 +84,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SectionTitle: typeof import('./components/notes/SectionTitle.vue')['default']
     ShortcutHint: typeof import('./components/ShortcutHint.vue')['default']
+    SpeakerButton: typeof import('./components/SpeakerButton.vue')['default']
     SubjectSelectDialog: typeof import('./components/SubjectSelectDialog.vue')['default']
     WrongQuestionDetail: typeof import('./components/wrongbook/WrongQuestionDetail.vue')['default']
     WrongQuestionList: typeof import('./components/wrongbook/WrongQuestionList.vue')['default']
