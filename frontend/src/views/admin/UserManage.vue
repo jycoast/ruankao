@@ -3,6 +3,10 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { adminApi } from '@/api'
 import type { User } from '@/types'
+import { useSubjectStore } from '@/stores/subject'
+
+// 科目列表由 AdminLayout 挂载时统一加载，这里直接复用，不再重复请求。
+const subjectStore = useSubjectStore()
 
 const users = ref<User[]>([])
 const total = ref(0)
@@ -75,6 +79,14 @@ async function resetPassword(user: User) {
   await adminApi.resetUserPassword(user.id, res.value)
   ElMessage.success('密码已重置')
 }
+
+// 用户当前科目：复用布局层已加载的科目列表映射名称。
+// 科目已下线（不在 /subjects 返回列表里）/ 列表尚未加载完时退化为 #id，避免显示空白。
+function subjectNameOf(user: User): string {
+  const sid = Number(user.subject_id) || 0
+  if (!sid) return '—'
+  return subjectStore.subjects.find((s) => s.id === sid)?.name || `#${sid}`
+}
 </script>
 
 <template>
@@ -107,6 +119,9 @@ async function resetPassword(user: User) {
       <el-table-column prop="username" label="用户名" min-width="120" show-overflow-tooltip />
       <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
       <el-table-column prop="nickname" label="昵称" min-width="110" show-overflow-tooltip />
+      <el-table-column label="当前科目" min-width="150" show-overflow-tooltip>
+        <template #default="{ row }: { row: any }">{{ subjectNameOf(row) }}</template>
+      </el-table-column>
       <el-table-column prop="role" label="角色" width="90">
         <template #default="{ row }: { row: any }">
           <el-tag :type="row.role === 1 ? 'danger' : 'info'">{{ row.role === 1 ? '管理员' : '用户' }}</el-tag>
