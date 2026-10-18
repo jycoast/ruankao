@@ -425,13 +425,9 @@ body {
 .admin-page .el-table {
   width: 100%;
 }
-/* Element Plus table 在窄屏下允许横向滑动，避免把整页撑爆 */
-.admin-page .el-table__inner-wrapper,
-.admin-page .el-table__header-wrapper,
-.admin-page .el-table__body-wrapper,
-.admin-page .el-table__footer-wrapper {
-  overflow-x: auto;
-}
+/* 横向滚动交给 Element Plus 自带的 body ElScrollbar：
+   表头由 syncPosition 同步 scrollLeft（header-wrapper 必须保持 overflow: hidden），
+   这里再给各 wrapper 加 overflow-x: auto 会多出一个独立的表头滚动条。 */
 .admin-page .el-dialog {
   width: min(920px, calc(100vw - 24px)) !important;
   margin-top: 8vh !important;
