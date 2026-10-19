@@ -14,6 +14,8 @@ import 'element-plus/theme-chalk/el-loading.css'
 // EP 官方暗黑主题变量（html.dark 下生效）。主题色由 appearance.ts 以行内样式注入，
 // 行内样式优先于这里的 html.dark 规则，自定义主题色在暗黑模式下不会被官方默认蓝覆盖。
 import 'element-plus/theme-chalk/dark/css-vars.css'
+// AI 输出里的 LaTeX 公式由 KaTeX 渲染（见 utils/math.ts），样式与字体必须全局引入
+import 'katex/dist/katex.min.css'
 import * as icons from './icons'
 import App from './App.vue'
 import router from './router'

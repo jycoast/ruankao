@@ -23,6 +23,7 @@
     "element-plus": "^2.9.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
+    "katex": "^0.16.47",
     "marked": "^18.0.5",
     "markmap-lib": "^0.18.12",
     "markmap-toolbar": "^0.18.12",

@@ -373,6 +373,8 @@ body {
 .md-content pre code { background: none; padding: 0; }
 .md-content blockquote { margin: 0.6em 0; padding: 4px 12px; border-left: 3px solid #d1d5db; color: #374151; background: #fafafa; }
 .md-content img { max-width: 100%; height: auto; margin: 0.5em 0; border-radius: 4px; }
+/* KaTeX 块级公式：长公式在窄屏可横向滚动，避免撑破卡片 */
+.md-content .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.2em 0; }
 .md-content hr { border: none; border-top: 1px solid #e5e7eb; margin: 0.8em 0; }
 .dark .md-content th { background: #374151; }
 .dark .md-content td, .dark .md-content th { border-color: #4b5563; }

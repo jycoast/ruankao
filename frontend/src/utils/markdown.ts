@@ -1,5 +1,6 @@
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import { extractMath, renderMathHtml } from '@/utils/math'
 
 // GitHub-flavored markdown; single newlines become <br> (matches exam text layout)
 marked.use({ gfm: true, breaks: true })
@@ -40,16 +41,25 @@ function sanitize(html: string): string {
   )
 }
 
+// AI 输出里常带 LaTeX 公式（\[...\]、$$...$$、$...$）。marked 不认公式，
+// 会把 \[ 当转义压成 [、把 \text{...} 原样留在正文 —— 这里先把公式抽成占位符，
+// 净化后再替换成 KaTeX HTML。顺序不能反：marked 会吃掉公式里的反斜杠。
+function renderWithMath(text: string, inline: boolean): string {
+  const { text: plain, segments } = extractMath(text)
+  const parsed = inline ? marked.parseInline(plain) : marked.parse(plain)
+  return renderMathHtml(sanitize(parsed as string), segments)
+}
+
 /** Render markdown (headings, tables, code, images, bold, lists, blockquote…) to HTML for v-html. */
 export function renderMd(text?: string | null): string {
   if (!text) return ''
-  return sanitize(marked.parse(text) as string)
+  return renderWithMath(text, false)
 }
 
 /** Inline markdown only (no block <p> wrapping) — for option text that sits inline. */
 export function renderMdInline(text?: string | null): string {
   if (!text) return ''
-  return sanitize(marked.parseInline(text) as string)
+  return renderWithMath(text, true)
 }
 
 // AI 偶尔会把整篇范文包进 ```markdown ... ``` 里再吐出来。marked 会把整篇
