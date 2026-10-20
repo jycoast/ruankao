@@ -289,16 +289,19 @@ onMounted(async () => {
 
 <template>
   <div class="mx-auto max-w-4xl space-y-6 px-4 py-8">
-    <!-- 头图：会员态与非会员态共用，只换文案与配色 -->
+    <!-- 头图：会员态与非会员态共用，只换文案与配色。
+         会员态的底色是浅金，白字（尤其 text-white/85）在黄底上几乎不可见，
+         这里改用深琥珀色文字，保证「剩余 N 天」这类关键信息看得清。 -->
     <section
-      class="relative overflow-hidden rounded-2xl p-6 text-white shadow-sm"
-      :class="
+      class="relative overflow-hidden rounded-2xl p-6 shadow-sm"
+      :class="[
+        membership?.is_member ? 'text-amber-950' : 'text-white',
         membership?.is_member
           ? expiringSoon
             ? 'bg-gradient-to-br from-amber-500 to-orange-500'
             : 'bg-gradient-to-br from-amber-400 to-yellow-500'
-          : 'bg-gradient-to-br from-violet-600 to-indigo-500'
-      "
+          : 'bg-gradient-to-br from-violet-600 to-indigo-500',
+      ]"
     >
       <div class="relative z-10">
         <template v-if="membership?.is_member">
@@ -306,7 +309,7 @@ onMounted(async () => {
             <el-icon><GoldMedal /></el-icon>
             {{ expiringSoon ? '会员即将到期' : '您是尊贵的会员' }}
           </div>
-          <p class="mt-1.5 text-sm text-white/85">
+          <p class="mt-1.5 text-sm text-amber-950">
             <template v-if="expiringSoon">
               还有 <b class="text-base">{{ membership.days_left }}</b> 天到期（{{
                 new Date(membership.expire_at as string).toLocaleDateString()
@@ -325,7 +328,12 @@ onMounted(async () => {
           </p>
         </template>
       </div>
-      <el-icon class="pointer-events-none absolute -right-4 -bottom-5 text-white/10" :size="140">
+      <!-- 装饰图标：浅金底上白图标等于隐形，会员态换成低透明度深琥珀 -->
+      <el-icon
+        :class="membership?.is_member ? 'text-amber-900/15' : 'text-white/10'"
+        class="pointer-events-none absolute -right-4 -bottom-5"
+        :size="140"
+      >
         <GoldMedal />
       </el-icon>
     </section>
