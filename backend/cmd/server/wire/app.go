@@ -322,6 +322,8 @@ type Middlewares struct {
 	RateIP         gin.HandlerFunc
 	RatePublic     gin.HandlerFunc
 	RateAction     func(name string, perMinute int) gin.HandlerFunc
+	RateAI         gin.HandlerFunc // AI 生成接口专用限额
+	AIConcurrency  gin.HandlerFunc // AI 生成接口在途并发上限
 	TrackQA        gin.HandlerFunc // 题库详情页统计
 	Maintenance    gin.HandlerFunc // 系统维护闸门
 }
@@ -339,6 +341,8 @@ func assembleMiddlewares(svc *Services, redis *redis.Client) *Middlewares {
 		RateIP:        middleware.RateLimitByIP(),
 		RatePublic:    middleware.RateLimitPublic(),
 		RateAction:    middleware.RateLimitAction,
+		RateAI:        middleware.RateLimitAI(),
+		AIConcurrency: middleware.AIConcurrency(),
 		TrackQA:       middleware.TrackQuestionAccess(),
 		Maintenance:   middleware.Maintenance(svc.Site, svc.UserState),
 	}

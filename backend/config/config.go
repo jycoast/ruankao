@@ -30,6 +30,8 @@ type AntiCrawlConfig struct {
 	DataPerMin           int      `mapstructure:"data_per_min"`           // 数据类接口限额（次/分钟）
 	AuthPerMin           int      `mapstructure:"auth_per_min"`           // 认证接口按 IP 限额（次/分钟）
 	SuspectPerMin        int      `mapstructure:"suspect_per_min"`        // 被标记用户的降速限额（次/分钟）
+	AIPerMin             int      `mapstructure:"ai_per_min"`             // AI 生成接口每用户限额（次/分钟）
+	AIMaxConcurrent      int      `mapstructure:"ai_max_concurrent"`      // 每用户同时进行的 AI 生成请求上限
 	DistinctQuestions24h int      `mapstructure:"distinct_questions_24h"` // 24h 内访问不同题目数阈值
 	SequentialThreshold  int      `mapstructure:"sequential_threshold"`   // 连续递增 ID 访问次数阈值
 	AllowOrigins         []string `mapstructure:"allow_origins"`          // CORS 白名单，空则回退为 *

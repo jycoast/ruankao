@@ -76,12 +76,14 @@ func wiredRouter(t *testing.T, maintenance bool, user *model.User) (*gin.Engine,
 			Admin:       middleware.AdminMiddleware(),
 			// 限流器在「注册路由时」就被实例化（见 auth/comment/membership 路由），
 			// 留 nil 会让 NewRouter 当场 panic。
-			RateAction:   func(string, int) gin.HandlerFunc { return passThrough },
-			RateGlobal:   passThrough,
-			RateData:     passThrough,
-			RatePublic:   passThrough,
-			RateIP:       passThrough,
-			OptionalAuth: func(c *gin.Context) { c.Next() },
+			RateAction:    func(string, int) gin.HandlerFunc { return passThrough },
+			RateAI:        passThrough,
+			AIConcurrency: passThrough,
+			RateGlobal:    passThrough,
+			RateData:      passThrough,
+			RatePublic:    passThrough,
+			RateIP:        passThrough,
+			OptionalAuth:  func(c *gin.Context) { c.Next() },
 		},
 	}
 	return NewRouter(app), repo

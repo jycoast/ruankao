@@ -38,6 +38,8 @@ anticrawl:
   data_per_min: 30 # 题库/试卷/知识点等数据接口限额
   auth_per_min: 10 # 登录/注册按 IP 限额
   suspect_per_min: 10 # 被标记用户的降速限额
+  ai_per_min: 10 # AI 生成接口每用户限额
+  ai_max_concurrent: 2 # 每用户同时进行的 AI 生成请求上限
   distinct_questions_24h: 500 # 24h 内访问不同题目数阈值，超过即降速
   sequential_threshold: 45 # 最近50次详情访问中递增ID次数阈值（顺序遍历检测）
   # CORS 白名单。留空时：release 不发 CORS 头（同源部署无需跨域），debug 才回退为 *。

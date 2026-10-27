@@ -190,8 +190,16 @@ func AIQuota(membershipSvc *service.MembershipService, aiSvc *service.AIService)
 			return
 		}
 
-		used, limit := aiSvc.TrialQuota(userID)
-		if used >= limit {
+		// 先占额度再调上游。原实现「查→判→响应结束后再扣」在并发下会全部通过检查，
+		// 免费次数形同虚设。失败时通过 defer 归还，保持「失败不扣次数」的原有语义。
+		ok, limit, err := aiSvc.ReserveTrial(userID)
+		if err != nil {
+			// 额度仓储故障不能放行，否则等于绕过付费墙
+			response.Error(c, 500, "额度校验失败，请稍后重试")
+			c.Abort()
+			return
+		}
+		if !ok {
 			if limit == 0 {
 				response.Error(c, 402, "该功能为会员专属，请先开通会员")
 			} else {
@@ -201,10 +209,18 @@ func AIQuota(membershipSvc *service.MembershipService, aiSvc *service.AIService)
 			return
 		}
 
+		consumed := true
+		defer func() {
+			// 兜底：handler panic 时 defer 仍会执行，不让额度被白吞
+			if consumed {
+				aiSvc.RefundTrial(userID)
+			}
+		}()
+
 		c.Next()
 		// 失败不扣次数。响应体恒为 HTTP 200，靠 response.Error 与 SSE handler 打的标记判断。
 		if c.Writer.Status() < 400 && !c.GetBool(response.BizErrorKey) && !c.GetBool("ai_failed") {
-			aiSvc.ConsumeTrial(userID)
+			consumed = false // 成功：额度留下
 		}
 	}
 }

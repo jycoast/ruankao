@@ -67,3 +67,31 @@ func TestGuestRateKey_FallsBackToIPPublic(t *testing.T) {
 		t.Fatalf("游客键 = %q, want rl:ip:1.2.3.4:public", k)
 	}
 }
+
+// AI 专用限额与并发上限的默认值
+func TestAcConfigAIDefaults(t *testing.T) {
+	old := config.AppConfig.AntiCrawl
+	defer func() { config.AppConfig.AntiCrawl = old }()
+	config.AppConfig.AntiCrawl = config.AntiCrawlConfig{Enable: true}
+
+	cfg := acConfig()
+	if cfg.AIPerMin != 10 || cfg.AIMaxConcurrent != 2 {
+		t.Fatalf("AI 默认值不符: perMin=%d maxConcurrent=%d", cfg.AIPerMin, cfg.AIMaxConcurrent)
+	}
+}
+
+// Redis 未初始化时 AI 闸门必须 fail-open
+func TestAIRateLimitFailOpenWithoutRedis(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	r.GET("/t", func(c *gin.Context) { c.Set("user_id", uint64(1)) },
+		RateLimitAI(), AIConcurrency(), func(c *gin.Context) { c.Status(http.StatusOK) })
+
+	for i := 0; i < 50; i++ {
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, httptest.NewRequest("GET", "/t", nil))
+		if w.Code != http.StatusOK {
+			t.Fatalf("request %d: expected 200 (fail-open), got %d", i, w.Code)
+		}
+	}
+}

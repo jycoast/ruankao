@@ -47,6 +47,12 @@ func acConfig() config.AntiCrawlConfig {
 	if cfg.SuspectPerMin <= 0 {
 		cfg.SuspectPerMin = 10
 	}
+	if cfg.AIPerMin <= 0 {
+		cfg.AIPerMin = 10 // 生成类调用耗时长、成本高，一次/6 秒已够正常使用
+	}
+	if cfg.AIMaxConcurrent <= 0 {
+		cfg.AIMaxConcurrent = 2
+	}
 	if cfg.DistinctQuestions24h <= 0 {
 		cfg.DistinctQuestions24h = 500
 	}
@@ -210,6 +216,87 @@ func RateLimitAction(scope string, perMin int) gin.HandlerFunc {
 			rejectTooMany(c)
 			return
 		}
+		c.Next()
+	}
+}
+
+// RateLimitAI AI 生成接口限额：用户 + IP 双桶，且不受 anticrawl.enable 影响。
+// 与 RateLimitAction 同理——反爬是可选的，AI 调用成本护栏不是。
+func RateLimitAI() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		limit := acConfig().AIPerMin
+		if userID := c.GetUint64("user_id"); userID != 0 {
+			if !allow(c, fmt.Sprintf("rl:ai:u:%d", userID), limit) {
+				rejectTooMany(c)
+				return
+			}
+		}
+		// 同一出口 IP 可能是办公室/校园网，额度放宽到 3 倍，只挡单机刷量
+		if !allow(c, fmt.Sprintf("rl:ai:ip:%s", c.ClientIP()), limit*3) {
+			rejectTooMany(c)
+			return
+		}
+		c.Next()
+	}
+}
+
+// —— AI 在途请求计数：限制单用户同时进行的生成请求数 ——
+
+const aiInflightTTL = 10 * time.Minute
+
+var aiInflightAcquire = redis.NewScript(`
+local current = redis.call('INCR', KEYS[1])
+if current == 1 then
+    redis.call('EXPIRE', KEYS[1], ARGV[1])
+end
+return current
+`)
+
+// 返回 0 时删除键，避免计数长期挂在 0 上
+var aiInflightRelease = redis.NewScript(`
+local current = redis.call('DECR', KEYS[1])
+if current <= 0 then
+    redis.call('DEL', KEYS[1])
+    return 0
+end
+return current
+`)
+
+// AIConcurrency 限制单个用户同时在途的 AI 生成请求数。
+// 只有分钟级限流挡不住「一分钟内同时开 N 条 SSE 长连接」；在途计数用 Redis，
+// 多实例部署下同样有效，进程崩溃由 TTL 自动回收。Redis 不可用时 fail-open。
+func AIConcurrency() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		rdb := redisclient.Client
+		if rdb == nil {
+			c.Next()
+			return
+		}
+		limit := acConfig().AIMaxConcurrent
+		key := fmt.Sprintf("rl:ai:fly:ip:%s", c.ClientIP())
+		if userID := c.GetUint64("user_id"); userID != 0 {
+			key = fmt.Sprintf("rl:ai:fly:u:%d", userID)
+		}
+
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 500*time.Millisecond)
+		count, err := aiInflightAcquire.Run(ctx, rdb, []string{key}, int(aiInflightTTL.Seconds())).Int64()
+		cancel()
+		if err != nil {
+			c.Next() // fail-open：限流组件故障不影响业务
+			return
+		}
+		release := func() {
+			// 用独立 context：客户端断开后 request context 已取消，释放仍要执行
+			rctx, rcancel := context.WithTimeout(context.Background(), 2*time.Second)
+			defer rcancel()
+			_, _ = aiInflightRelease.Run(rctx, rdb, []string{key}).Result()
+		}
+		if count > int64(limit) {
+			release()
+			rejectTooMany(c)
+			return
+		}
+		defer release()
 		c.Next()
 	}
 }

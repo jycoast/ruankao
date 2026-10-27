@@ -230,9 +230,26 @@ func (s *AIService) TrialQuota(userID uint64) (used int, limit int) {
 	return used, limit
 }
 
-// ConsumeTrial 扣减一次免费额度，失败静默忽略（不阻断已完成的响应）。
-func (s *AIService) ConsumeTrial(userID uint64) {
-	s.trialRepo.Increment(userID)
+// ReserveTrial 原子占用一次免费额度，返回是否占用成功及额度上限。
+// 必须在发起上游请求之前调用：先查后扣会让并发请求同时通过检查。
+// limit == 0 表示该功能为会员专属（未配置免费次数）。
+func (s *AIService) ReserveTrial(userID uint64) (ok bool, limit int, err error) {
+	cfg, err := s.cfgRepo.Get()
+	if err != nil {
+		return false, 0, err
+	}
+	limit = cfg.FreeTrialLimit
+	if limit <= 0 {
+		return false, 0, nil
+	}
+	ok, err = s.trialRepo.TryIncrement(userID, limit)
+	return ok, limit, err
+}
+
+// RefundTrial 归还已占用的额度（上游失败时调用）。
+// 失败静默：宁可多扣一次，也不能让退款错误把已经完成的响应变成 500。
+func (s *AIService) RefundTrial(userID uint64) {
+	_ = s.trialRepo.Decrement(userID)
 }
 
 // ---- 调用日志 ----

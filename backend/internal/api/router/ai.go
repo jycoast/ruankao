@@ -25,13 +25,18 @@ func registerAI(r *gin.Engine, h *wire.Handlers, mw *wire.Middlewares) {
 		ai.GET("/my-config", mw.RequireMember, h.AI.GetMyConfig)
 		ai.PUT("/my-config", mw.RequireMember, h.AI.UpdateMyConfig)
 		ai.POST("/my-config/test", mw.RequireMember, h.AI.TestMyConfig)
-		// AI 功能:非会员消耗免费试用额度
-		ai.POST("/chat", mw.AIQuota, h.AI.Chat)
-		ai.POST("/explain", mw.AIQuota, h.AI.Explain)
-		ai.POST("/explain-stream", mw.AIQuota, h.AI.ExplainStream)
-		ai.POST("/generate-questions", mw.AIQuota, h.AI.GenerateQuestions)
-		ai.POST("/generate-essay", mw.AIQuota, h.AI.GenerateEssay)
-		ai.POST("/grade-essay", mw.AIQuota, h.AI.GradeEssay)
-		ai.POST("/grade-case", mw.AIQuota, h.AI.GradeCase)
+		// AI 功能:非会员消耗免费试用额度。
+		// 依次过限流(429 不占额度) → 在途并发 → 免费额度,任一超限都不调上游。
+		gen := ai.Group("")
+		gen.Use(mw.RateAI, mw.AIConcurrency, mw.AIQuota)
+		{
+			gen.POST("/chat", h.AI.Chat)
+			gen.POST("/explain", h.AI.Explain)
+			gen.POST("/explain-stream", h.AI.ExplainStream)
+			gen.POST("/generate-questions", h.AI.GenerateQuestions)
+			gen.POST("/generate-essay", h.AI.GenerateEssay)
+			gen.POST("/grade-essay", h.AI.GradeEssay)
+			gen.POST("/grade-case", h.AI.GradeCase)
+		}
 	}
 }

@@ -85,7 +85,11 @@ func (r *UserAIConfigRepositoryImpl) Upsert(cfg *model.UserAIConfig) error {
 
 type AITrialUsageRepository interface {
 	GetUsed(userID uint64) (int, error)
-	Increment(userID uint64) error
+	// TryIncrement 原子占用一次额度：used_count < limit 才 +1。
+	// 返回 false 表示额度已满（limit<=0 时直接视为会员专属，不占用）。
+	TryIncrement(userID uint64, limit int) (bool, error)
+	// Decrement 归还一次额度（上游失败时）。
+	Decrement(userID uint64) error
 }
 
 type AITrialUsageRepositoryImpl struct {
@@ -108,25 +112,48 @@ func (r *AITrialUsageRepositoryImpl) GetUsed(userID uint64) (int, error) {
 	return u.UsedCount, nil
 }
 
-// Increment 原子自增，避免并发请求少扣次数。
-func (r *AITrialUsageRepositoryImpl) Increment(userID uint64) error {
+// TryIncrement 把「是否还有额度」写进 UPDATE 的 WHERE，
+// 避免先 GetUsed 再 Increment 时并发请求同时通过检查。
+func (r *AITrialUsageRepositoryImpl) TryIncrement(userID uint64, limit int) (bool, error) {
+	if limit <= 0 {
+		return false, nil
+	}
+	ok, err := r.bumpUnderLimit(userID, limit)
+	if err != nil || ok {
+		return ok, err
+	}
+
+	// 0 行有两种可能：额度已满（行存在），或首次使用（行不存在）。
+	// 用一次轻量 COUNT 区分，避免额度已满时反复撞唯一索引。
+	var n int64
+	if err := r.db.Model(&model.AITrialUsage{}).Where("user_id = ?", userID).Count(&n).Error; err != nil {
+		return false, err
+	}
+	if n > 0 {
+		return false, nil
+	}
+	if err := r.db.Create(&model.AITrialUsage{UserID: userID, UsedCount: 1}).Error; err != nil {
+		// 并发下别人刚插入：退化为条件自增，额度上限仍由 WHERE 兜住
+		return r.bumpUnderLimit(userID, limit)
+	}
+	return true, nil
+}
+
+func (r *AITrialUsageRepositoryImpl) bumpUnderLimit(userID uint64, limit int) (bool, error) {
 	res := r.db.Model(&model.AITrialUsage{}).
-		Where("user_id = ?", userID).
+		Where("user_id = ? AND used_count < ?", userID, limit).
 		UpdateColumn("used_count", gorm.Expr("used_count + 1"))
 	if res.Error != nil {
-		return res.Error
+		return false, res.Error
 	}
-	if res.RowsAffected > 0 {
-		return nil
-	}
-	err := r.db.Create(&model.AITrialUsage{UserID: userID, UsedCount: 1}).Error
-	if err != nil {
-		// 并发下另一请求已插入，退化为自增
-		return r.db.Model(&model.AITrialUsage{}).
-			Where("user_id = ?", userID).
-			UpdateColumn("used_count", gorm.Expr("used_count + 1")).Error
-	}
-	return nil
+	return res.RowsAffected > 0, nil
+}
+
+// Decrement 归还额度；used_count 不会降到负数。
+func (r *AITrialUsageRepositoryImpl) Decrement(userID uint64) error {
+	return r.db.Model(&model.AITrialUsage{}).
+		Where("user_id = ? AND used_count > 0", userID).
+		UpdateColumn("used_count", gorm.Expr("used_count - 1")).Error
 }
 
 // ---- AI Call Log ----
@@ -269,11 +296,23 @@ func (r *AIConversationRepositoryImpl) Update(conv *model.AIConversation) error 
 	return r.db.Save(conv).Error
 }
 
+// Delete 删除会话及其消息。
+//
+// 必须先按 id+user_id 删会话，确认真的删掉一行后才清消息：
+// 原实现无条件按 conversation_id 删消息，任何登录用户拿别人的会话 ID
+// 就能清空对方聊天记录，而对方会话行因 user_id 不匹配反而保留。
+// 非本人或不存在的 ID 静默成功（幂等），不额外泄露会话是否存在。
 func (r *AIConversationRepositoryImpl) Delete(id, userID uint64) error {
-	if err := r.db.Where("conversation_id = ?", id).Delete(&model.AIMessage{}).Error; err != nil {
-		return err
-	}
-	return r.db.Where("id = ? AND user_id = ?", id, userID).Delete(&model.AIConversation{}).Error
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		res := tx.Where("id = ? AND user_id = ?", id, userID).Delete(&model.AIConversation{})
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected == 0 {
+			return nil // 不属于当前用户：一条消息都不许删
+		}
+		return tx.Where("conversation_id = ?", id).Delete(&model.AIMessage{}).Error
+	})
 }
 
 // ---- AI Message ----
