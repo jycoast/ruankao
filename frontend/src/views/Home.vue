@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, watch } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { useSubjectStore } from "@/stores/subject";
@@ -24,22 +24,25 @@ async function loadData() {
   loading.value = true;
   try {
     if (userStore.isLoggedIn) {
-      try {
-        const res: any = await userApi.getStats();
-        stats.value = res.data || {};
-      } catch {}
-      try {
-        const rRes: any = await practiceApi.getDueReview({ silent: true, page: 1, page_size: 1 });
-        dueCount.value = Number(rRes.data?.total || 0);
-      } catch {}
-      try {
-        const wRes: any = await practiceApi.getWrongQuestions({ status: 1, page: 1, page_size: 1 });
-        wrongCount.value = Number(wRes.data?.total || 0);
-      } catch {}
-      try {
-        const pRes: any = await practiceApi.getCategoryProgress();
-        progress.value = pRes.data || [];
-      } catch {}
+      // 四个接口互不依赖，必须并发发出。原来逐个 await 会让首屏耗时变成
+      // 四次往返之和，而首页最慢的一步本就受网络与 DB 影响。
+      // 用 allSettled 而非 all：任一接口失败（限流/维护/后端抖动）不能让
+      // 其余三块数据一起消失，保持原先四个独立 try/catch 的降级行为。
+      const [statsRes, reviewRes, wrongRes, progressRes] =
+        await Promise.allSettled([
+          userApi.getStats(),
+          practiceApi.getDueReview({ silent: true, page: 1, page_size: 1 }),
+          practiceApi.getWrongQuestions({ status: 1, page: 1, page_size: 1 }),
+          practiceApi.getCategoryProgress(),
+        ]);
+      if (statsRes.status === "fulfilled")
+        stats.value = (statsRes.value as any).data || {};
+      if (reviewRes.status === "fulfilled")
+        dueCount.value = Number((reviewRes.value as any).data?.total || 0);
+      if (wrongRes.status === "fulfilled")
+        wrongCount.value = Number((wrongRes.value as any).data?.total || 0);
+      if (progressRes.status === "fulfilled")
+        progress.value = (progressRes.value as any).data || [];
     }
   } finally {
     loading.value = false;
@@ -48,7 +51,9 @@ async function loadData() {
 }
 
 onMounted(loadData);
-watch(() => subjectStore.currentSubjectId, loadData);
+// 以上四个接口都不按科目过滤（user/stats、practice/review、practice/wrong、
+// practice/category-progress 均无 subject 参数），切换科目重刷只会拿到同一份数据。
+// 原先 watch(currentSubjectId) 因此是纯浪费，还会在科目晚于首页挂载恢复时再全量刷一遍。
 
 const greeting = computed(() => {
   const h = new Date().getHours();
